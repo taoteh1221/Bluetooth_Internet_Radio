@@ -12,6 +12,8 @@ Initial version
 
 -Better script filename UX
 
+-Example radio stations spreadsheet
+
 -------------------------------------------------------------------
 
 
