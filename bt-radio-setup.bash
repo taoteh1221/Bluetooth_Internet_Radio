@@ -24,7 +24,7 @@
 
 
 # Version of this script
-APP_VERSION="1.00.0"
+APP_VERSION="1.01.0"
 
 export XAUTHORITY=~/.Xauthority 
 				
