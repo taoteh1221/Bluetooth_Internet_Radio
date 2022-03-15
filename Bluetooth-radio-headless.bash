@@ -3,6 +3,9 @@
 # Copyright 2022 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com
 
 
+# Version of this script
+APP_VERSION="1.00.0"
+
 export XAUTHORITY=~/.Xauthority 
 				
 # Export current working directory, in case we are calling another bash instance in this script
