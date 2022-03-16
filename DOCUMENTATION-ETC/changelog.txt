@@ -34,7 +34,9 @@ Initial version
 -------------------------------------------------------------------
 1.01.0:
 
--User experience improvements
+-BUG FIX: Significant installation logic fixed for pulseaudio and pyradio (FULL re-install is HIGHLY recommended)
+
+-General user experience improvements
 
 -------------------------------------------------------------------
 

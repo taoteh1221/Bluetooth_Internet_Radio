@@ -20,6 +20,9 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 ///////////////////////////////////////////////////////
 
 
+Maybe dietpi devices could get a2dp support so it works on them too with pipewire? Maybe an option to use pipewire instead of pulseaudio? Seems only rapberry pi os supports a2dp 'out-of-the-box' using pulseaudio (from my tests).
+https://wiki.debian.org/PipeWire
+https://wiki.debian.org/BluetoothUser/a2dp
 
 
 ///////////////////////////////////////////////////////
