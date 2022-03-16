@@ -6,13 +6,19 @@ Initial version
 
 
 -------------------------------------------------------------------
-1.01.0:
+1.00.1:
 
--Documentation
+-BUG FIX: PyRadio installs properly now
+
+-Uprade alert, and automatic upgrading option
+
+-Example radio stations spreadsheet
 
 -Better script filename UX
 
--Example radio stations spreadsheet
+-"Other Apps" section
+
+-Documentation
 
 -------------------------------------------------------------------
 

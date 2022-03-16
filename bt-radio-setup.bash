@@ -24,7 +24,7 @@
 
 
 # Version of this script
-APP_VERSION="1.01.0"
+APP_VERSION="1.00.1"
 
 export XAUTHORITY=~/.Xauthority 
 				
@@ -54,6 +54,22 @@ DATE=$(date '+%Y-%m-%d')
 
 # Bash's FULL PATH
 BASH_PATH=$(which bash)
+
+
+# curl's FULL PATH
+CURL_PATH=$(which curl)
+
+
+# jq's FULL PATH
+JQ_PATH=$(which jq)
+
+
+# wget's FULL PATH
+WGET_PATH=$(which wget)
+
+
+# sed's FULL PATH
+SED_PATH=$(which sed)
 
 
 # pyradio's FULL PATH
@@ -161,6 +177,7 @@ fi
 
 ######################################
 
+
 echo " "
 
 if [ "$TERMINAL_USERNAME" == "root" ]; then 
@@ -171,10 +188,129 @@ if [ "$TERMINAL_USERNAME" == "root" ]; then
  exit
 fi
 
+
 ######################################
+
+# Install curl if needed
+if [ -z "$CURL_PATH" ]; then
+
+sudo apt update
+
+echo " "
+echo "${cyan}Installing required component curl, please wait...${reset}"
+echo " "
+
+sudo apt install curl jq -y
+
+fi
+
+# Install jq if needed
+if [ -z "$JQ_PATH" ]; then
+
+sudo apt update
+
+echo " "
+echo "${cyan}Installing required component jq, please wait...${reset}"
+echo " "
+
+sudo apt install jq -y
+
+fi
+
+# Install wget if needed
+if [ -z "$WGET_PATH" ]; then
+
+sudo apt update
+
+echo " "
+echo "${cyan}Installing required component wget, please wait...${reset}"
+echo " "
+
+sudo apt install wget -y
+
+fi
+
+# Install sed if needed
+if [ -z "$SED_PATH" ]; then
+
+sudo apt update
+
+echo " "
+echo "${cyan}Installing required component sed, please wait...${reset}"
+echo " "
+
+sudo apt install sed -y
+
+fi
 
 
 ######################################
+
+
+# Check for newer version
+LATEST_VERSION=$(curl -s 'https://api.github.com/repos/taoteh1221/Bluetooth_Internet_Radio/releases/latest' | jq -r '.tag_name')
+
+if [ $APP_VERSION != $LATEST_VERSION ]; then 
+
+# Remove any sourceforge link we may add in the future, with sed
+UPGRADE_DESC=$(curl -s 'https://api.github.com/repos/taoteh1221/Bluetooth_Internet_Radio/releases/latest' | jq -r '.body' | sed 's/\[.*//g')
+
+echo " "
+echo "${red}An upgrade is available to v${LATEST_VERSION} (you are running v${APP_VERSION})${reset}"
+echo " "
+echo "${cyan}Upgrade Description:"
+echo " "
+echo "$UPGRADE_DESC${reset}"
+echo " "
+echo "${yellow}Do you want to upgrade to v${LATEST_VERSION} now?${reset}"
+
+echo "${yellow} "
+read -n1 -s -r -p $"Press y to upgrade to v${LATEST_VERSION} (or press n to cancel)..." key
+echo "${reset} "
+        
+        
+    if [ "$key" = 'y' ] || [ "$key" = 'Y' ]; then
+          
+    				echo " "
+    				echo "${cyan}Initiating upgrade, please wait...${reset}"
+    				echo " "
+    				
+    sleep 3
+    
+    # Remove system link, to reset automatically after upgrade (in case script location changed)
+    rm ~/radio > /dev/null 2>&1
+    
+    UPGRADE_FILE="https://raw.githubusercontent.com/taoteh1221/Bluetooth_Internet_Radio/${LATEST_VERSION}/Bluetooth-radio-headless.bash"
+    
+    				wget --no-cache -O bt-radio-setup.bash $UPGRADE_FILE;chmod +x bt-radio-setup.bash
+    				
+    				sleep 5
+    				
+    				INSTALL_LOCATION="${PWD}/bt-radio-setup.bash"
+    				
+    				# Re-create system link, with latest script location
+    				ln -s $INSTALL_LOCATION ~/radio
+    				
+    echo " "
+    echo "${green}Upgrade has completed.${reset}"
+    echo " "
+    echo "${red}Please re-run this script, since we just completed an upgrade to it."
+    echo " "
+    echo "Exiting..."
+    echo "${reset} "
+    exit
+    
+    else
+    echo " "
+    echo "${green}Upgrade has been cancelled.${reset}"
+    fi
+    	
+
+fi
+
+
+######################################
+
 
 echo " "
 
@@ -196,16 +332,15 @@ echo "${red}PRO TIP: ~/radio command is a shortcut to this script${reset}"
 echo " "
 fi
 
+
 ######################################
-
-
 
 
 echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="pulseaudio_install pulseaudio_start_restart pulseaudio_fix pulseaudio_status pyradio_install pyradio_on pyradio_off bluetooth_mac_address bluetooth_connect bluetooth_test volume_adjust troubleshoot skip"
+OPTIONS="pulseaudio_install pulseaudio_start_restart pulseaudio_fix pulseaudio_status pyradio_install pyradio_on pyradio_off bluetooth_mac_address bluetooth_connect bluetooth_test volume_adjust troubleshoot other_apps exit"
 
 # start options
 select opt in $OPTIONS; do
@@ -271,7 +406,7 @@ select opt in $OPTIONS; do
                 
                     else
                     
-                    echo "${cyan}dietpi-config bluetooth enabling has been cancelled.${reset}"
+                    echo "${green}dietpi-config bluetooth enabling has been cancelled.${reset}"
                     echo " "
                 
                     fi
@@ -285,7 +420,7 @@ select opt in $OPTIONS; do
         echo " "
         
         # .local support and other needed components that require system-wide intallation
-        apt install avahi-daemon pip screen mplayer alsa-utils expect -y
+        apt install avahi-daemon screen alsa-utils expect -y
         
         apt install pulseaudio* -y
         
@@ -524,7 +659,9 @@ EOF
         echo " "
         
             if [ "$EUID" == 0 ]; then 
-             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS."
+             echo " "
+             echo "(some components for pyradio are installed as a regular user)${reset}"
              echo " "
              echo "${cyan}Exiting...${reset}"
              echo " "
@@ -532,11 +669,23 @@ EOF
             fi
         
         ######################################
-       
+        
+        # https://github.com/coderholic/pyradio/blob/master/build.md
         
         echo " "
-        echo "${green}Installing PyRadio, please wait...${reset}"
+        echo "${green}Installing PyRadio and required components, please wait...${reset}"
         echo " "
+        
+        # Install secondary python packages seperately, so any missing packages don't break installing the others
+        sudo apt install pip mplayer -y
+        
+        sudo apt install python-setuptools -y
+        
+        sudo apt install python-requests -y
+        
+        sudo apt install python-dnspython -y
+        
+        sudo apt install python-psutil -y
         
         # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
         wget --no-cache -O install.py https://raw.githubusercontent.com/coderholic/pyradio/master/pyradio/install.py
@@ -653,7 +802,7 @@ EOF
     			$PYRADIO_PATH --play
             
                 else
-                echo "${cyan}pyradio first-time setup has been cancelled.${reset}"
+                echo "${green}pyradio first-time setup has been cancelled.${reset}"
                 echo " "
                 fi
                 
@@ -770,12 +919,12 @@ EOF
             echo " "
             
             echo " "
-            echo "${cyan}Bluetooth scanning complete.${reset}"
+            echo "${green}Bluetooth scanning complete.${reset}"
             echo " "
         
             else
             
-            echo "${cyan}Bluetooth scanning cancelled.${reset}"
+            echo "${green}Bluetooth scanning cancelled.${reset}"
             echo " "
         
             fi
@@ -931,10 +1080,66 @@ EOF
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "skip" ]; then
+        elif [ "$opt" = "other_apps" ]; then
+        
+        
+        ######################################
+        
+        echo " "
+        
+            if [ "$EUID" == 0 ]; then 
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+        
+
+        echo " "
+        echo "${yellow}100% FREE open source PRIVATE cryptocurrency investment portfolio tracker,"
+        echo "with email / text / Alexa / Ghome / Telegram alerts, charts, mining calculators,"
+        echo "leverage / gain / loss / balance stats, news feeds and more:${reset}"
+        echo " "
+        echo "${green}https://taoteh1221.github.io${reset}"
+        echo " "
+        echo "${green}https://github.com/taoteh1221/Open_Crypto_Tracker${reset}"
+        echo " "
+
+        echo " "
+        echo "${yellow}100% FREE open source multi-crypto slideshow ticker for Raspberry Pi LCD screens:${reset}"
+        echo " "
+        echo "${green}https://sourceforge.net/projects/dfd-crypto-ticker${reset}"
+        echo " "
+        echo "${green}https://github.com/taoteh1221/Slideshow_Crypto_Ticker${reset}"
+        echo " "
+        
+        echo " "
+        echo "${yellow}ANY DONATIONS (LARGE OR SMALL) HELP SUPPORT DEVELOPMENT OF MY APPS..."
+        echo " "
+        echo "${cyan}Bitcoin: ${green}3Nw6cvSgnLEFmQ1V4e8RSBG23G7pDjF3hW"
+        echo " "
+        echo "${cyan}Ethereum: ${green}0x644343e8D0A4cF33eee3E54fE5d5B8BFD0285EF8"
+        echo " "
+        echo "${cyan}Helium: ${green}13xs559435FGkh39qD9kXasaAnB8JRF8KowqPeUmKHWU46VYG1h"
+        echo " "
+        echo "${cyan}Solana: ${green}GvX4AU4V9atTBof9dT9oBnLPmPiz3mhoXBdqcxyRuQnU"
+        echo " "
+
+        
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "exit" ]; then
        
         echo " "
-        echo "${green}Skipping...${reset}"
+        echo "${green}Exiting...${reset}"
         echo " "
         
         exit
