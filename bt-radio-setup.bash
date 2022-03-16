@@ -24,7 +24,7 @@
 
 
 # Version of this script
-APP_VERSION="1.00.1" # 2022/MARCH/16TH
+APP_VERSION="1.00.2" # 2022/MARCH/16TH
 
 export XAUTHORITY=~/.Xauthority 
 				
@@ -282,25 +282,42 @@ echo "${reset} "
     # Remove system link, to reset automatically after upgrade (in case script location changed)
     rm ~/radio > /dev/null 2>&1
     
-    UPGRADE_FILE="https://raw.githubusercontent.com/taoteh1221/Bluetooth_Internet_Radio/${LATEST_VERSION}/Bluetooth-radio-headless.bash"
+    UPGRADE_FILE="https://raw.githubusercontent.com/taoteh1221/Bluetooth_Internet_Radio/${LATEST_VERSION}/bt-radio-setup.bash"
     
-    				wget --no-cache -O bt-radio-setup.bash $UPGRADE_FILE;chmod +x bt-radio-setup.bash
-    				
-    				sleep 5
-    				
-    				INSTALL_LOCATION="${PWD}/bt-radio-setup.bash"
-    				
-    				# Re-create system link, with latest script location
-    				ln -s $INSTALL_LOCATION ~/radio
-    				
-    echo " "
-    echo "${green}Upgrade has completed.${reset}"
-    echo " "
-    echo "${red}Please re-run this script, since we just completed an upgrade to it."
-    echo " "
-    echo "Exiting..."
-    echo "${reset} "
-    exit
+    wget --no-cache -O BT-TEMP.bash $UPGRADE_FILE
+    
+    sleep 3
+    
+    FILESIZE=$(stat -c%s BT-TEMP.bash)
+    
+        # If we got back a file greater than 0 bytes (NOT a 404 error)
+        if [ $FILESIZE -gt 0 ]; then
+        
+        mv -v --force BT-TEMP.bash bt-radio-setup.bash
+    
+        chmod +x bt-radio-setup.bash
+        				
+        sleep 5
+        				
+        INSTALL_LOCATION="${PWD}/bt-radio-setup.bash"
+        				
+        # Re-create system link, with latest script location
+        ln -s $INSTALL_LOCATION ~/radio
+        				
+        echo " "
+        echo "${green}Upgrade has completed.${reset}"
+        echo " "
+        echo "${red}Please re-run this script, since we just completed an upgrade to it."
+        echo " "
+        echo "Exiting..."
+        echo "${reset} "
+        exit
+        
+        else
+        echo " "
+        echo "${red}Upgrade download failed, please try again.${reset}"
+        echo " "
+        fi
     
     else
     echo " "
