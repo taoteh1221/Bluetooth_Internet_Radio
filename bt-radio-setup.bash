@@ -694,7 +694,7 @@ EOF
         # https://github.com/coderholic/pyradio/blob/master/build.md
         
         echo " "
-        echo "${green}Installing PyRadio and required components, please wait...${reset}"
+        echo "${green}Installing pyradio and required components, please wait...${reset}"
         echo " "
         
         # Install secondary python packages seperately, so any missing packages don't break installing the others
@@ -720,7 +720,7 @@ EOF
         sleep 2
         
         echo " "
-        echo "${green}PyRadio installation complete.${reset}"
+        echo "${green}pyradio installation complete.${reset}"
         echo " "
         
         break
@@ -832,7 +832,7 @@ EOF
             else
         
             echo "${reset}${yellow} "
-            read -n1 -s -r -p $'Press b to run radio in the background, or s to show on-screen...\n' key
+            read -n1 -s -r -p $'Press b to run pyradio in the background, or s to show on-screen...\n' key
             echo "${reset} "
     
                 # Using $PYRADIO_PATH in case any old pip version messed up our bash config?
