@@ -273,14 +273,11 @@ echo "${reset} "
         
     if [ "$key" = 'y' ] || [ "$key" = 'Y' ]; then
           
-    				echo " "
-    				echo "${cyan}Initiating upgrade, please wait...${reset}"
-    				echo " "
+    echo " "
+    echo "${cyan}Initiating upgrade, please wait...${reset}"
+    echo " "
     				
     sleep 3
-    
-    # Remove system link, to reset automatically after upgrade (in case script location changed)
-    rm ~/radio > /dev/null 2>&1
     
     UPGRADE_FILE="https://raw.githubusercontent.com/taoteh1221/Bluetooth_Internet_Radio/${LATEST_VERSION}/bt-radio-setup.bash"
     
@@ -288,16 +285,21 @@ echo "${reset} "
     
     sleep 3
     
-    FILESIZE=$(stat -c%s BT-TEMP.bash)
+    FILE_SIZE=$(stat -c%s BT-TEMP.bash)
     
         # If we got back a file greater than 0 bytes (NOT a 404 error)
-        if [ $FILESIZE -gt 0 ]; then
+        if [ $FILE_SIZE -gt 0 ]; then
+    
+        # Remove system link, to reset automatically after upgrade (in case script location changed)
+        rm ~/radio > /dev/null 2>&1
         
         mv -v --force BT-TEMP.bash bt-radio-setup.bash
+        
+        sleep 3
     
         chmod +x bt-radio-setup.bash
         				
-        sleep 5
+        sleep 1
         				
         INSTALL_LOCATION="${PWD}/bt-radio-setup.bash"
         				
