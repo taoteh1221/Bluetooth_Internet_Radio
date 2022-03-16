@@ -24,7 +24,7 @@
 
 
 # Version of this script
-APP_VERSION="1.00.1"
+APP_VERSION="1.00.1" # 2022/MARCH/16TH
 
 export XAUTHORITY=~/.Xauthority 
 				
@@ -248,24 +248,26 @@ fi
 
 
 # Check for newer version
-LATEST_VERSION=$(curl -s 'https://api.github.com/repos/taoteh1221/Bluetooth_Internet_Radio/releases/latest' | jq -r '.tag_name')
+API_VERSION_DATA=$(curl -s 'https://api.github.com/repos/taoteh1221/Bluetooth_Internet_Radio/releases/latest')
+
+LATEST_VERSION=$(echo "$API_VERSION_DATA" | jq -r '.tag_name')
 
 if [ $APP_VERSION != $LATEST_VERSION ]; then 
 
-# Remove any sourceforge link we may add in the future, with sed
-UPGRADE_DESC=$(curl -s 'https://api.github.com/repos/taoteh1221/Bluetooth_Internet_Radio/releases/latest' | jq -r '.body' | sed 's/\[.*//g')
+# Remove any sourceforge link in the description, with sed
+UPGRADE_DESC=$(echo "$API_VERSION_DATA" | jq -r '.body' | sed 's/\[.*//g')
 
 echo " "
 echo "${red}An upgrade is available to v${LATEST_VERSION} (you are running v${APP_VERSION})${reset}"
 echo " "
-echo "${cyan}Upgrade Description:"
+echo "${cyan}Upgrade Description:${reset}"
 echo " "
-echo "$UPGRADE_DESC${reset}"
+echo "${green}$UPGRADE_DESC${reset}"
 echo " "
 echo "${yellow}Do you want to upgrade to v${LATEST_VERSION} now?${reset}"
 
 echo "${yellow} "
-read -n1 -s -r -p $"Press y to upgrade to v${LATEST_VERSION} (or press n to cancel)..." key
+read -n1 -s -r -p $"Press y to upgrade (or press n to cancel)..." key
 echo "${reset} "
         
         
