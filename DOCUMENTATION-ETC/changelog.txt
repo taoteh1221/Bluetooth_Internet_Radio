@@ -32,7 +32,7 @@ Initial version
 
 
 -------------------------------------------------------------------
-1.01.0:
+1.00.3:
 
 -BUG FIX: Significant installation logic fixed for pulseaudio and pyradio (FULL re-install is HIGHLY recommended)
 
