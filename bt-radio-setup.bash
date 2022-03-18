@@ -26,6 +26,21 @@
 # Version of this script
 APP_VERSION="1.00.3" # 2022/MARCH/16TH
 
+# If parameters are added via command line
+# (CLEANEST WAY TO RUN PARAMETER INPUT #TO AUTO-SELECT MULTIPLE CONSECUTIVE OPTION MENUS#)
+# (WE CAN PASS THEM #IN QUOTES# AS: command "option1 sub-option2 sub-sub-option3")
+if [ "$1" != "" ] && [ "$APP_RECURSE" != "1" ]; then
+APP_RECURSE=1
+export APP_RECURSE=$APP_RECURSE
+printf "%s\n" $1 | ~/radio
+exit
+else
+UNUSED_VAR="dummy command"
+#debugging here
+#echo "APP_RECURSE=$APP_RECURSE"
+#echo "PARAM=$1"
+fi
+
 export XAUTHORITY=~/.Xauthority 
 				
 # Export current working directory, in case we are calling another bash instance in this script
@@ -297,32 +312,35 @@ sudo apt install sed -y
 
 fi
 
-BT_AUTOCONNECT_PATH="${PWD}/bluetooth-autoconnect/bluetooth-autoconnect"
 
-# Install autoconnect if needed (AND we are #NOT# running as sudo)
-if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
+BT_AUTOCONNECT_PATH="${PWD}/bluetooth-autoconnect.py"
 
-echo " "
-echo "${cyan}Installing required component bluetooth-autoconnect, please wait...${reset}"
-echo " "
 
-git clone https://github.com/jrouleau/bluetooth-autoconnect
+# bluetooth_autoconnect function START
+bluetooth_autoconnect () {
 
-sleep 5
-
-#refresh setting the var
-BT_AUTOCONNECT_PATH="${PWD}/bluetooth-autoconnect/bluetooth-autoconnect"
-
-chmod +x $BT_AUTOCONNECT_PATH
-				
-
-    
-    # bluetooth-autoconnect systemd service start at boot
-    if [ -d "/lib/systemd/system" ] && [ ! -f $HOME/.local/share/systemd/user/btautoconnect.service ]; then
+    # Install bluetooth-autoconnect.py if needed (AND we are #NOT# running as sudo)
+    if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
     
     echo " "
-    echo "${cyan}Installing bluetooth-autoconnect as a systemd service, please wait...${reset}"
+    echo "${cyan}Installing required component bluetooth-autoconnect, please wait...${reset}"
     echo " "
+    
+            
+    # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
+    wget --no-cache -O bluetooth-autoconnect.py https://raw.githubusercontent.com/taoteh1221/Bluetooth_Internet_Radio/main/bluetooth-autoconnect/bluetooth-autoconnect.py
+    
+    sleep 3
+    
+    chmod +x $BT_AUTOCONNECT_PATH
+    
+        
+        # bluetooth-autoconnect systemd service start at boot
+        if [ -d "/lib/systemd/system" ] && [ ! -f $HOME/.local/share/systemd/user/btautoconnect.service ]; then
+        
+        echo " "
+        echo "${cyan}Installing bluetooth-autoconnect as a systemd service, please wait...${reset}"
+        echo " "
 
 
 # Don't nest / indent, or it could malform the settings            
@@ -341,31 +359,41 @@ WantedBy=pulseaudio.service
 \r
 EOF
 
-    # Setup service to run at login
-    # https://superuser.com/questions/1037466/how-to-start-a-systemd-service-after-user-login-and-stop-it-before-user-logout
+        # Setup service to run at login
+        # https://superuser.com/questions/1037466/how-to-start-a-systemd-service-after-user-login-and-stop-it-before-user-logout
+        
+        mkdir -p $HOME/.local/share/systemd/user
+        
+        sleep 3
+        					
+        echo -e "$BT_AUTOCONNECT_STARTUP" > $HOME/.local/share/systemd/user/btautoconnect.service
+        
+        sleep 3
+        					
+        systemctl --user enable btautoconnect.service
+        
+        echo " "
+        echo "${cyan}bluetooth-autoconnect systemd service is setup, and will run on terminal login.${reset}"
+        echo " "
+        					
+        fi	   
     
-    mkdir -p $HOME/.local/share/systemd/user
     
-    sleep 3
-    					
-    echo -e "$BT_AUTOCONNECT_STARTUP" > $HOME/.local/share/systemd/user/btautoconnect.service
-    
-    sleep 3
-    					
-    systemctl --user enable btautoconnect.service
-    					
-    fi	   
-
-fi
+    fi
         
 
-######################################
+
+    # Run bluetooth-autoconnect.py (IF we are #NOT# running as sudo, AND no systemd startup service is installed)
+    if [ -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ] && [ ! -f /lib/systemd/system/btautoconnect.service ]; then
+    $PYTHON_PATH $BT_AUTOCONNECT_PATH
+    fi
+
+}
+# bluetooth_autoconnect function END
 
 
-# Run bluetooth-autoconnect (IF we are #NOT# running as sudo, AND no systemd startup service is installed)
-if [ -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ] && [ ! -f /lib/systemd/system/btautoconnect.service ]; then
-$PYTHON_PATH $BT_AUTOCONNECT_PATH
-fi
+# Call bluetooth_autoconnect function
+bluetooth_autoconnect
 
 
 echo " "
@@ -384,8 +412,26 @@ echo "you'll have to delete ~/radio and THIS SCRIPT WILL RE-CREATE IT.${reset}"
 echo " "
 
 else
-echo "${red}PRO TIP: ~/radio command is a shortcut to this script${reset}"
+echo "${cyan}PRO TIPS:"
 echo " "
+echo "Shortcut to this script: ${green}~/radio${cyan}"
+echo " "
+echo "Paired bluetooth reconnects (if disconnected) when you start a terminal session"
+echo " "
+echo "Auto-selecting multi-option examples ${red}(#MUST# BE IN QUOTES!)${cyan}:"
+echo " "
+echo "${green}~/radio \"6 2 b\"${cyan}"
+echo "(runs pyradio default list in background)"
+echo " "
+echo "${green}~/radio \"7\"${cyan}"
+echo "(stops pyradio background playing)"
+echo " "
+echo "${green}~/radio \"9 XX:XX:XX:XX:XX:XX\"${cyan}"
+echo "(connect bluetooth device by mac address)"
+echo " "
+echo "${green}~/radio \"10 3\"${cyan}"
+echo "(shows paired bluetooth devices)"
+echo "${reset} "
 fi
 
 
@@ -397,6 +443,7 @@ echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
 OPTIONS="upgrade_check pulseaudio_install pulseaudio_status pulseaudio_fix pyradio_install pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_devices bluetooth_remove sound_test volume_adjust syslog_logs journal_logs troubleshoot other_apps restart_computer exit"
+
 
 # start options
 select opt in $OPTIONS; do
@@ -436,10 +483,10 @@ select opt in $OPTIONS; do
             echo " "
             echo "${red}An upgrade is available to v${LATEST_VERSION} (you are running v${APP_VERSION})${reset}"
             echo " "
-            echo "${cyan}Upgrade Description:${reset}"
+            echo "${cyan}Upgrade Description:"
             echo " "
-            echo "${green}$UPGRADE_DESC${reset}"
-            echo " "
+            echo "$UPGRADE_DESC"
+            echo "${reset} "
             echo "${yellow}Do you want to upgrade to v${LATEST_VERSION} now?${reset}"
             
             echo "${yellow} "
@@ -707,15 +754,10 @@ select opt in $OPTIONS; do
             # If 'pulseaudio' was found, start it
             if [ -f "$PULSEAUDIO_PATH" ]; then
                     
-            PULSEAUDIO_STATUS=$(systemctl --user status pulseaudio.service)
-            
-            sleep 2
-                    
-            echo "${yellow}PulseAudio status:${reset}"
-            echo "${cyan} "
-                    
-            echo "$PULSEAUDIO_STATUS"
+            echo "${yellow}PulseAudio status: ${red}(HOLD Ctrl+c KEYS DOWN TO EXIT)${yellow}:"
             echo "${reset} "
+            systemctl --user status pulseaudio.service
+            exit
             
             else
             
@@ -751,11 +793,31 @@ select opt in $OPTIONS; do
             # If 'pulseaudio' was found, run the fix
             if [ -f "$PULSEAUDIO_PATH" ]; then
                     
-            
+            # Remove any user configs (sometimes pulseaudio bluetooth is fixed doing this)
             rm -r ~/.config/pulse.old > /dev/null 2>&1
             mv ~/.config/pulse/ ~/.config/pulse.old-$DATE > /dev/null 2>&1
+            
+    		# Stop / remove any existing bluetooth-autoconnect service (so we trigger re-install next run, to get any updates)
+    		# (so we are allowed to remove /lib/systemd/system/pulseaudio.service afterwards)
+    		systemctl --user stop btautoconnect.service
+    		
+    		sleep 5
+    		
+    		rm $HOME/.local/share/systemd/user/btautoconnect.service > /dev/null 2>&1
+    		
+    		rm $BT_AUTOCONNECT_PATH
+    		
+    		sleep 2
+    		
+    		# reload services
+    		systemctl --user daemon-reload
+    		
+    		sleep 2
+    		
+            # Call bluetooth_autoconnect function (wwill re-initialize since we removed it)
+            bluetooth_autoconnect
                     
-            echo "${green}Attempted fixes on user config files have been completed (and backup saved to: ~/.config/pulse.old-$DATE).${reset}"
+            echo "${green}Attempted USER FILES fixes completed (old configs at ~/.config/pulse.old-$DATE, btautoconnect.service re-initialized).${reset}"
             echo " "
 
             echo "${cyan}Now checking /etc/pulse/default.pa for missing bluetooth modules, please wait...${reset}"
@@ -764,6 +826,7 @@ select opt in $OPTIONS; do
             PULSE_BT_POLICY=$(sudo sed -n '/module-bluetooth-policy/p' /etc/pulse/default.pa)
             PULSE_BT_DISCOVER=$(sudo sed -n '/module-bluetooth-discover/p' /etc/pulse/default.pa)
             PULSE_BT_CONNECT=$(sed -n '/module-switch-on-connect/p' /etc/pulse/default.pa)
+            
             
                 if [ "$PULSE_BT_POLICY" == "" ]; then 
                 echo "${red}No bluetooth policy module loaded in pulseaudio, fixing, please wait...${reset}"
@@ -802,13 +865,14 @@ select opt in $OPTIONS; do
                 fi         
             
                 if [ "$NO_CONFIG_ISSUE" == "1" ]; then 
-                echo "${green}No known pulseaudio configuration issues detected.${reset}"
+                echo "${green}No known pulseaudio DEFAULT configuration issues detected.${reset}"
                 echo " "
                 sleep 2
                 fi     
         
+        
             echo " "
-            echo "${green}pulseaudio attempted fixes complete.${reset}"
+            echo "${green}All pulseaudio attempted fixes complete.${reset}"
             echo " "   
 		
     		echo " "
@@ -884,13 +948,13 @@ select opt in $OPTIONS; do
         sudo pip install setuptools requests dnspython psutil
         
         # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
-        wget --no-cache -O install.py https://raw.githubusercontent.com/coderholic/pyradio/master/pyradio/install.py
+        wget --no-cache -O install-pyradio.py https://raw.githubusercontent.com/coderholic/pyradio/master/pyradio/install.py
         
         sleep 2
         
-        chmod +x install.py
+        chmod +x install-pyradio.py
         
-        $PYTHON_PATH install.py --force
+        $PYTHON_PATH install-pyradio.py --force
         
         sleep 2
         
@@ -927,8 +991,11 @@ select opt in $OPTIONS; do
             fi
         
         ######################################
-       
-  				
+        
+        # kill any background instances of pyradio
+        screen -ls | grep Detached | cut -d. -f1 | awk '{print $1}' | xargs kill
+        
+        echo " "
         echo "${yellow}Select 1 or 2 to choose whether to load a custom stations file, or the default one.${reset}"
         echo " "
         
@@ -947,26 +1014,27 @@ select opt in $OPTIONS; do
                                 
                 	if [ -z "$CUSTOM_STATIONS_FILE" ]; then
                  	LOAD_CUSTOM_STATIONS=""
+                    echo " "
                  	echo "${green}Using default stations...${reset}"
                     echo " "
-                    sleep 3
                  	else
                  	LOAD_CUSTOM_STATIONS="-s $CUSTOM_STATIONS_FILE"
+                    echo " "
                     echo "${green}Using custom stations from: $CUSTOM_STATIONS_FILE${reset}"
                     echo " "
-                    sleep 3
                  	fi
                 
                 break
                elif [ "$opt" = "default_stations" ]; then
                 echo " "
                 echo "${green}Using default stations...${reset}"
+                echo " "
                 break
                fi
         done
         
         echo " "
-        echo "${red}PRO TIPS:"
+        echo "${cyan}PRO TIPS:"
         echo " "
         echo "Press the q OR Esc key to exit pyradio"
         echo " "
@@ -1017,6 +1085,7 @@ select opt in $OPTIONS; do
             # OTHERWISE, LET USER CHOOSE WHICH WAY TO RUN PYRADIO
             else
         
+         
             echo "${reset}${yellow} "
             read -n1 -s -r -p $'Press b to run pyradio in the background, or s to show on-screen...\n' key
             echo "${reset} "
@@ -1027,6 +1096,10 @@ select opt in $OPTIONS; do
                 echo "${yellow} "
                 read -p 'Enter playlist number: ' PLAY_NUM
                 echo "${reset} "
+                
+                    if [ -z "$PLAY_NUM" ]; then
+                    PLAY_NUM=1
+                    fi
                 
                 echo " "
                 echo "${green}Tuning pyradio to playlist ${PLAY_NUM}...${reset}"
@@ -1154,7 +1227,8 @@ select opt in $OPTIONS; do
         
         ######################################
         
-        echo "${red}PRO TIP:"
+        echo " "
+        echo "${cyan}PRO TIP:"
         echo " "
         echo "WAIT UNTIL THE #CONNECTION ATTEMPT TIMES OUT#, TO SEE A #RESULTS SUMMARY# FOR YOUR CONNECTION ATTEMPT.${reset}"
         echo " "
@@ -1218,12 +1292,15 @@ select opt in $OPTIONS; do
         ######################################
                   
 
+        echo " "
         echo "${yellow}Enter a NUMBER to choose whether to view the system's (INTERNAL) bluetooth devices, available devices, paired devices, or trusted devices (may not be available).${reset}"
         echo " "
             
             OPTIONS="internal_devices available_devices paired_devices trusted_devices"
             
             select opt in $OPTIONS; do
+                    echo " "
+                    
                     if [ "$opt" = "internal_devices" ]; then
                    
                     echo " "
@@ -1293,7 +1370,7 @@ select opt in $OPTIONS; do
         
         ######################################
         
-        echo "${red}PRO TIP:"
+        echo "${cyan}PRO TIP:"
         echo " "
         echo "WAIT UNTIL THE #CONNECTION REMOVAL TIMES OUT#, TO SEE A #RESULTS SUMMARY# FOR YOUR CONNECTION REMOVAL.${reset}"
         echo " "
@@ -1438,8 +1515,8 @@ select opt in $OPTIONS; do
         
         echo " "
         
-            if [ "$EUID" -ne 0 ] || [ "$TERMINAL_USERNAME" == "root" ]; then 
-             echo "${red}Please run #WITH# 'sudo' PERMISSIONS.${reset}"
+            if [ "$EUID" == 0 ]; then 
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
              echo " "
              echo "${cyan}Exiting...${reset}"
              echo " "
@@ -1450,7 +1527,7 @@ select opt in $OPTIONS; do
                     
         echo "${yellow}bluetooth journal ${red}(HOLD Ctrl+c KEYS DOWN TO EXIT)${yellow}:"
         echo "${reset} "
-        journalctl --unit=bluetooth -f
+        journalctl -u bluetooth.service -u pulseaudio.service -u btautoconnect.service --since today
         exit
         
         break

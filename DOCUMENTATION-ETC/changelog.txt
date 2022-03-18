@@ -36,6 +36,8 @@ Initial version
 
 -BUG FIX: Significant installation and system checks logic fixed for pulseaudio and pyradio (FULL re-install is HIGHLY recommended)
 
+-Feature to pass multiple option parameters (in quotes) to the script as: command "option1 sub-option2 sub-sub-option3"
+
 -General user experience improvements
 
 -------------------------------------------------------------------
