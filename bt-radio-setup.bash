@@ -323,8 +323,11 @@ bluetooth_autoconnect () {
     if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
     
     echo " "
-    echo "${cyan}Installing required component bluetooth-autoconnect, please wait...${reset}"
+    echo "${cyan}Installing required component bluetooth-autoconnect and dependancies, please wait...${reset}"
     echo " "
+    
+    # Install pip packages system-wide with sudo
+    sudo pip install prctl dbus
     
             
     # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
@@ -797,8 +800,9 @@ select opt in $OPTIONS; do
             rm -r ~/.config/pulse.old > /dev/null 2>&1
             mv ~/.config/pulse/ ~/.config/pulse.old-$DATE > /dev/null 2>&1
             
-    		# Stop / remove any existing bluetooth-autoconnect service (so we trigger re-install next run, to get any updates)
-    		# (so we are allowed to remove /lib/systemd/system/pulseaudio.service afterwards)
+    		# Stop / remove any existing bluetooth-autoconnect service
+    		# (so we can trigger re-install afterwards, to get any updated configs in latest script)
+    		# (also allows us to remove /lib/systemd/system/pulseaudio.service afterwards)
     		systemctl --user stop btautoconnect.service
     		
     		sleep 5
@@ -814,7 +818,7 @@ select opt in $OPTIONS; do
     		
     		sleep 2
     		
-            # Call bluetooth_autoconnect function (wwill re-initialize since we removed it)
+            # Call bluetooth_autoconnect function (this will re-initialize it, since we removed it)
             bluetooth_autoconnect
                     
             echo "${green}Attempted USER FILES fixes completed (old configs at ~/.config/pulse.old-$DATE, btautoconnect.service re-initialized).${reset}"
@@ -993,7 +997,10 @@ select opt in $OPTIONS; do
         ######################################
         
         # kill any background instances of pyradio
-        screen -ls | grep Detached | cut -d. -f1 | awk '{print $1}' | xargs kill
+        SCREENS_DETACHED=$(screen -ls | grep Detached)
+        if [ "$SCREENS_DETACHED" != "" ]; then
+        echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+        fi
         
         echo " "
         echo "${yellow}Select 1 or 2 to choose whether to load a custom stations file, or the default one.${reset}"
