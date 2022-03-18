@@ -34,7 +34,7 @@ Initial version
 -------------------------------------------------------------------
 1.00.3:
 
--BUG FIX: Significant installation logic fixed for pulseaudio and pyradio (FULL re-install is HIGHLY recommended)
+-BUG FIX: Significant installation and system checks logic fixed for pulseaudio and pyradio (FULL re-install is HIGHLY recommended)
 
 -General user experience improvements
 
