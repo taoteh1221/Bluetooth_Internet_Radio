@@ -54,6 +54,21 @@ DATE=$(date '+%Y-%m-%d')
 
 # Bash's FULL PATH
 BASH_PATH=$(which bash)
+        
+        
+# Use LATEST version of python available
+        
+# Look for python3
+PYTHON_PATH=$(which python3)
+
+# If 'python3' wasn't found, look for 'python'
+if [ -z "$PYTHON_PATH" ]; then
+PYTHON_PATH=$(which python)
+fi
+
+
+# git's FULL PATH
+GIT_PATH=$(which git)
 
 
 # curl's FULL PATH
@@ -191,6 +206,45 @@ fi
 
 ######################################
 
+# Install python if needed
+if [ -z "$PYTHON_PATH" ]; then
+
+echo " "
+echo "${cyan}Installing required components python python3, please wait...${reset}"
+echo " "
+
+sudo apt update
+
+sudo apt install python python3 -y
+
+sleep 5
+        
+# Use LATEST version of python available
+        
+# Look for python3
+PYTHON_PATH=$(which python3)
+
+    # If 'python3' wasn't found, look for 'python'
+    if [ -z "$PYTHON_PATH" ]; then
+    PYTHON_PATH=$(which python)
+    fi
+
+fi
+
+# Install git if needed
+if [ -z "$GIT_PATH" ]; then
+
+echo " "
+echo "${cyan}Installing required component git, please wait...${reset}"
+echo " "
+
+sudo apt update
+
+sudo apt install git -y
+
+fi
+
+
 # Install curl if needed
 if [ -z "$CURL_PATH" ]; then
 
@@ -200,7 +254,7 @@ echo " "
 
 sudo apt update
 
-sudo apt install curl jq -y
+sudo apt install curl -y
 
 fi
 
@@ -243,8 +297,75 @@ sudo apt install sed -y
 
 fi
 
+BT_AUTOCONNECT_PATH="${PWD}/bluetooth-autoconnect/bluetooth-autoconnect"
+
+# Install autoconnect if needed (AND we are #NOT# running as sudo)
+if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
+
+echo " "
+echo "${cyan}Installing required component bluetooth-autoconnect, please wait...${reset}"
+echo " "
+
+git clone https://github.com/jrouleau/bluetooth-autoconnect
+
+sleep 5
+
+#refresh setting the var
+BT_AUTOCONNECT_PATH="${PWD}/bluetooth-autoconnect/bluetooth-autoconnect"
+
+chmod +x $BT_AUTOCONNECT_PATH
+				
+
+    
+    # bluetooth-autoconnect systemd service start at boot
+    if [ -d "/lib/systemd/system" ] && [ ! -f $HOME/.local/share/systemd/user/btautoconnect.service ]; then
+    
+    echo " "
+    echo "${cyan}Installing bluetooth-autoconnect as a systemd service, please wait...${reset}"
+    echo " "
+
+
+# Don't nest / indent, or it could malform the settings            
+read -r -d '' BT_AUTOCONNECT_STARTUP <<- EOF
+\r
+[Unit]
+Description=Bluetooth autoconnect
+After=pulseaudio.service
+\r
+[Service]
+Type=simple
+\r
+ExecStart=$PYTHON_PATH $BT_AUTOCONNECT_PATH
+[Install]
+WantedBy=pulseaudio.service
+\r
+EOF
+
+    # Setup service to run at login
+    # https://superuser.com/questions/1037466/how-to-start-a-systemd-service-after-user-login-and-stop-it-before-user-logout
+    
+    mkdir -p $HOME/.local/share/systemd/user
+    
+    sleep 3
+    					
+    echo -e "$BT_AUTOCONNECT_STARTUP" > $HOME/.local/share/systemd/user/btautoconnect.service
+    
+    sleep 3
+    					
+    systemctl --user enable btautoconnect.service
+    					
+    fi	   
+
+fi
+        
 
 ######################################
+
+
+# Run bluetooth-autoconnect (IF we are #NOT# running as sudo, AND no systemd startup service is installed)
+if [ -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ] && [ ! -f /lib/systemd/system/btautoconnect.service ]; then
+$PYTHON_PATH $BT_AUTOCONNECT_PATH
+fi
 
 
 echo " "
@@ -275,7 +396,7 @@ echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pyradio_install pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_devices bluetooth_remove sound_test volume_adjust syslog_logs journal_logs troubleshoot other_apps exit"
+OPTIONS="upgrade_check pulseaudio_install pulseaudio_status pulseaudio_fix pyradio_install pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_devices bluetooth_remove sound_test volume_adjust syslog_logs journal_logs troubleshoot other_apps restart_computer exit"
 
 # start options
 select opt in $OPTIONS; do
@@ -514,27 +635,37 @@ select opt in $OPTIONS; do
         usermod -a -G bluetooth $TERMINAL_USERNAME
 
         echo " "
-        echo "${cyan}Now making sure /etc/pulse/system.pa has bluetooth modules, please wait...${reset}"
+        echo "${cyan}Now making sure /etc/pulse/default.pa has bluetooth modules, please wait...${reset}"
         echo " "
 		
-        PULSE_BT_POLICY=$(sed -n '/module-bluetooth-policy/p' /etc/pulse/system.pa)
-        PULSE_BT_DISCOVER=$(sed -n '/module-bluetooth-discover/p' /etc/pulse/system.pa)
+        PULSE_BT_POLICY=$(sed -n '/module-bluetooth-policy/p' /etc/pulse/default.pa)
+        PULSE_BT_DISCOVER=$(sed -n '/module-bluetooth-discover/p' /etc/pulse/default.pa)
+        PULSE_BT_CONNECT=$(sed -n '/module-switch-on-connect/p' /etc/pulse/default.pa)
         
             if [ "$PULSE_BT_POLICY" == "" ]; then 
             echo "${red}No bluetooth policy module loaded in pulseaudio, adding it now, please wait...${reset}"
             echo " "
-            sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/system.pa'
+            sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/default.pa'
             sleep 2
-            sudo bash -c 'echo "load-module module-bluetooth-policy" >> /etc/pulse/system.pa'
+            sudo bash -c 'echo "load-module module-bluetooth-policy" >> /etc/pulse/default.pa'
             sleep 2
             fi        
         
             if [ "$PULSE_BT_DISCOVER" == "" ]; then 
             echo "${red}No bluetooth discover module loaded in pulseaudio, adding it now, please wait...${reset}"
             echo " "
-            sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/system.pa'
+            sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/default.pa'
             sleep 2
-            sudo bash -c 'echo "load-module module-bluetooth-discover" >> /etc/pulse/system.pa'
+            sudo bash -c 'echo "load-module module-bluetooth-discover" >> /etc/pulse/default.pa'
+            sleep 2
+            fi        
+        
+            if [ "$PULSE_BT_CONNECT" == "" ]; then 
+            echo "${red}No switch on connect module loaded in pulseaudio, adding it now, please wait...${reset}"
+            echo " "
+            sudo bash -c 'echo "### REQUIRED FOR AUTO-CONNECT NEW DEVICES!" >> /etc/pulse/default.pa'
+            sleep 2
+            sudo bash -c 'echo "load-module module-switch-on-connect" >> /etc/pulse/default.pa'
             sleep 2
             fi        
         
@@ -549,6 +680,50 @@ select opt in $OPTIONS; do
 		sleep 5
 		
 		reboot
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "pulseaudio_status" ]; then
+        
+        
+        ######################################
+        
+        echo " "
+        
+            if [ "$EUID" == 0 ]; then 
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+        
+            
+            # If 'pulseaudio' was found, start it
+            if [ -f "$PULSEAUDIO_PATH" ]; then
+                    
+            PULSEAUDIO_STATUS=$(systemctl --user status pulseaudio.service)
+            
+            sleep 2
+                    
+            echo "${yellow}PulseAudio status:${reset}"
+            echo "${cyan} "
+                    
+            echo "$PULSEAUDIO_STATUS"
+            echo "${reset} "
+            
+            else
+            
+            echo "PulseAudio not found, must be installed first, please re-run this script and choose that option."
+            echo " "
+                    
+            fi
+
         
         break
         
@@ -583,19 +758,21 @@ select opt in $OPTIONS; do
             echo "${green}Attempted fixes on user config files have been completed (and backup saved to: ~/.config/pulse.old-$DATE).${reset}"
             echo " "
 
-            echo "${cyan}Now checking /etc/pulse/system.pa for missing bluetooth modules, please wait...${reset}"
+            echo "${cyan}Now checking /etc/pulse/default.pa for missing bluetooth modules, please wait...${reset}"
             echo " "
 		
-            PULSE_BT_POLICY=$(sudo sed -n '/module-bluetooth-policy/p' /etc/pulse/system.pa)
-            PULSE_BT_DISCOVER=$(sudo sed -n '/module-bluetooth-discover/p' /etc/pulse/system.pa)
+            PULSE_BT_POLICY=$(sudo sed -n '/module-bluetooth-policy/p' /etc/pulse/default.pa)
+            PULSE_BT_DISCOVER=$(sudo sed -n '/module-bluetooth-discover/p' /etc/pulse/default.pa)
+            PULSE_BT_CONNECT=$(sed -n '/module-switch-on-connect/p' /etc/pulse/default.pa)
             
                 if [ "$PULSE_BT_POLICY" == "" ]; then 
                 echo "${red}No bluetooth policy module loaded in pulseaudio, fixing, please wait...${reset}"
                 echo " "
-                sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/system.pa'
+                sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/default.pa'
                 sleep 2
-                sudo bash -c 'echo "load-module module-bluetooth-policy" >> /etc/pulse/system.pa'
+                sudo bash -c 'echo "load-module module-bluetooth-policy" >> /etc/pulse/default.pa'
                 sleep 2
+                NO_CONFIG_ISSUE=0
                 else
                 NO_CONFIG_ISSUE=1
                 fi        
@@ -603,10 +780,23 @@ select opt in $OPTIONS; do
                 if [ "$PULSE_BT_DISCOVER" == "" ]; then 
                 echo "${red}No bluetooth discover module loaded in pulseaudio, fixing, please wait...${reset}"
                 echo " "
-                sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/system.pa'
+                sudo bash -c 'echo "### REQUIRED FOR BLUETOOTH!" >> /etc/pulse/default.pa'
                 sleep 2
-                sudo bash -c 'echo "load-module module-bluetooth-discover" >> /etc/pulse/system.pa'
+                sudo bash -c 'echo "load-module module-bluetooth-discover" >> /etc/pulse/default.pa'
                 sleep 2
+                NO_CONFIG_ISSUE=0
+                else
+                NO_CONFIG_ISSUE=1
+                fi         
+            
+                if [ "$PULSE_BT_CONNECT" == "" ]; then 
+                echo "${red}No switch on connect module loaded in pulseaudio, fixing, please wait...${reset}"
+                echo " "
+                sudo bash -c 'echo "### REQUIRED FOR AUTO-CONNECT NEW DEVICES!" >> /etc/pulse/default.pa'
+                sleep 2
+                sudo bash -c 'echo "load-module module-switch-on-connect" >> /etc/pulse/default.pa'
+                sleep 2
+                NO_CONFIG_ISSUE=0
                 else
                 NO_CONFIG_ISSUE=1
                 fi         
@@ -699,16 +889,6 @@ select opt in $OPTIONS; do
         sleep 2
         
         chmod +x install.py
-        
-        # Use LATEST version of python available
-        
-        # Look for python3
-        PYTHON_PATH=$(which python3)
-
-        # If 'python3' wasn't found, look for 'python'
-        if [ -z "$PYTHON_PATH" ]; then
-        PYTHON_PATH=$(which python)
-        fi
         
         $PYTHON_PATH install.py --force
         
@@ -1357,6 +1537,19 @@ select opt in $OPTIONS; do
 
         
         exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "restart_computer" ]; then
+       
+        echo " "
+        echo "${green}Rebooting...${reset}"
+        echo " "
+        
+        sudo reboot
         
         break
         
