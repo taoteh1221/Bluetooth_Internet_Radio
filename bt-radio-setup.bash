@@ -965,7 +965,7 @@ select opt in $OPTIONS; do
         sudo apt install mpv -y
         
         # Install pyradio python3 dependencies
-        sudo apt install python3-setuptools python3-wheel python3-pip python3-requests python3-dns python3-psutil -y
+        sudo apt install python3-setuptools python3-wheel python3-pip python3-requests python3-dnspython python3-psutil -y
         
         sleep 5
         
