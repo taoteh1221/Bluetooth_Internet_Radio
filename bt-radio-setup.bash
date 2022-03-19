@@ -76,9 +76,10 @@ BASH_PATH=$(which bash)
 # Look for python3
 PYTHON_PATH=$(which python3)
 
-# If 'python3' wasn't found, look for 'python'
+# If 'python3' wasn't found, install it
 if [ -z "$PYTHON_PATH" ]; then
-PYTHON_PATH=$(which python)
+sudo apt install python3 -y
+PYTHON_PATH=$(which python3)
 fi
 
 
@@ -234,7 +235,7 @@ echo " "
 
 sudo apt update
 
-sudo apt install python python3 -y
+sudo apt install python3 -y
 
 sleep 5
         
@@ -245,7 +246,7 @@ PYTHON_PATH=$(which python3)
 
     # If 'python3' wasn't found, look for 'python'
     if [ -z "$PYTHON_PATH" ]; then
-    PYTHON_PATH=$(which python)
+    PYTHON_PATH=$(which python3)
     fi
 
 fi
@@ -344,12 +345,10 @@ bluetooth_autoconnect () {
     echo " "
     
     sudo apt update
-    sudo apt install pip -y
-    
-    # Install pip packages system-wide with sudo
-    sudo pip install --upgrade setuptools
-    sudo pip install dbus-python
-    sudo pip install python-prctl
+    # Install python3 prctl
+    sudo apt install python3-prctl -y
+    # Install python3 dbus modules
+    sudo apt install python3-dbus python3-slip-dbus python3-pydbus -y
     
             
     # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
@@ -962,28 +961,21 @@ select opt in $OPTIONS; do
         
         sudo apt update
         
-        sudo apt install pip mplayer -y
+        # Install mpv instead of mplayer, it's more stable
+        sudo apt install mpv -y
         
-        # Install secondary python packages seperately, so any missing packages don't break installing the others
-        sudo apt install python -y
-        sudo apt install python3 -y
+        # Install pyradio python3 dependencies
+        sudo apt install python3-setuptools python3-wheel python3-pip python3-requests python3-dnspython python3-psutil -y
         
         sleep 5
         
-        # Install pip packages system-wide with sudo
-        sudo pip install --upgrade setuptools
-        sudo pip install requests
-        sudo pip install dnspython
-        sudo pip install psutil
-        
         # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
-        wget --no-cache -O install-pyradio.py https://raw.githubusercontent.com/coderholic/pyradio/master/pyradio/install.py
+        # Renaming pyradio's installation script may not work...
+        wget --no-cache -O install.py https://raw.githubusercontent.com/coderholic/pyradio/master/pyradio/install.py
         
         sleep 2
         
-        chmod +x install-pyradio.py
-        
-        $PYTHON_PATH install-pyradio.py --force
+        $PYTHON_PATH install.py --force
         
         sleep 2
         
