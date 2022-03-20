@@ -13,5 +13,30 @@ To install automatically on Ubuntu / DietPi OS / RaspberryPi OS, copy => paste =
 wget --no-cache -O bt-radio-setup.bash https://tinyurl.com/bt-radio-setup;chmod +x bt-radio-setup.bash;./bt-radio-setup.bash
 
 
+AFTER installation, ~/radio is installed as a shortcut command pointing to this script, and paired bluetooth reconnects (if disconnected) when you start a new terminal session. 
+
+
+A command line parameter can be passed to auto-select menu choices. Multi sub-option selecting is available too, by seperating each sub-option with a space, AND ecapsulating everything in quotes like "option1 sub-option2 sub-sub-option3".
+
+Running normally (diplays options to choose from):
+
+~/radio
+ 
+Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE IN QUOTES!):
+ 
+~/radio "1 y"
+(checks for / confirms script upgrade)
+ 
+~/radio "6 1 b"
+(plays pyradio default station in background)
+ 
+~/radio 7
+(stops pyradio background playing)
+ 
+~/radio "9 XX:XX:XX:XX:XX:XX"
+(connect bluetooth device by mac address)
+ 
+~/radio "10 3"
+(shows paired bluetooth devices)
 
 

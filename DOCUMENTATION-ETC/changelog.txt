@@ -50,6 +50,8 @@ Initial version
 
 -Stricter module adding in pluseaudio 'fix' logic
 
+-Documentation
+
 -------------------------------------------------------------------
 
 
