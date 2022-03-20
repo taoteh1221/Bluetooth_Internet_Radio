@@ -43,6 +43,16 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.00.4:
+
+-BUG FIX: MORE significant installation fixes for python-based depenencies (FULL re-install is HIGHLY recommended)
+
+-Stricter module adding in pluseaudio 'fix' logic
+
+-------------------------------------------------------------------
+
+
 
 
 
