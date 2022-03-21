@@ -182,7 +182,7 @@ fi
 
 
 # Get primary dependency apps, if we haven't already
-if [ ! -f ~/dependency-check.dat ]; then
+if [ ! -f ~/.bt-radio-dependency-check.dat ]; then
     
     # If 'python3' wasn't found, install it
     # python3's FULL PATH (we DONT want python [which is python2])
@@ -338,7 +338,7 @@ if [ ! -f ~/dependency-check.dat ]; then
     fi
 
 export DATE=$DATE
-bash -c 'echo "checked primary dependencies of bt-radio-setup.bash: ${DATE}" >> ~/dependency-check.dat'
+bash -c 'echo "checked primary dependencies of bt-radio-setup.bash: ${DATE}" >> ~/.bt-radio-dependency-check.dat'
 
 fi
 # dependency check END
@@ -1176,6 +1176,8 @@ select opt in $OPTIONS; do
                 
                 # mpv crashes a raspberry pi zero, mplayer does not (and vlc doesn't handle network disruption too well)
                 sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config
+                
+                sleep 1
 
                 # mpv fails opening streams in pyradio on raspi devices, unless we set the connection timeout high
                 sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config
