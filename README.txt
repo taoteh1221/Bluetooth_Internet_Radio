@@ -36,7 +36,10 @@ Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE I
 ~/radio "9 XX:XX:XX:XX:XX:XX"
 (connect bluetooth device by mac address)
  
-~/radio "10 3"
+~/radio "10 XX:XX:XX:XX:XX:XX"
+(remove bluetooth device by mac address)
+ 
+~/radio "11 3"
 (shows paired bluetooth devices)
 
 

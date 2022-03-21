@@ -55,6 +55,20 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.00.5:
+
+-BUG FIX: Comptibility with raspberry pi devices
+
+-BUG FIX: bluetooth_autoconnect runtime logic
+
+-Optimized runtime speed
+
+-Documentation
+
+-------------------------------------------------------------------
+
+
 
 
 
