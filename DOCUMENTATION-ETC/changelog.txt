@@ -74,6 +74,10 @@ Initial version
 
 -BUG FIX: Compatibility with upgrading the "Easter Egg" version of this app (bundled in crypto tracker / ticker apps)
 
+-'pyradio_fix' option, to attempt fixes for common pyradio problems
+
+-'other_apps' section now has option to auto-install additional apps
+
 -Documentation
 
 -------------------------------------------------------------------

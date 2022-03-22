@@ -27,19 +27,19 @@ Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE I
 ~/radio "1 y"
 (checks for / confirms script upgrade)
  
-~/radio "6 1 b"
+~/radio "7 1 b"
 (plays pyradio default station in background)
  
-~/radio 7
+~/radio 8
 (stops pyradio background playing)
  
-~/radio "9 XX:XX:XX:XX:XX:XX"
+~/radio "10 XX:XX:XX:XX:XX:XX"
 (connect bluetooth device by mac address)
  
-~/radio "10 XX:XX:XX:XX:XX:XX"
+~/radio "11 XX:XX:XX:XX:XX:XX"
 (remove bluetooth device by mac address)
  
-~/radio "11 3"
+~/radio "12 3"
 (shows paired bluetooth devices)
 
 
