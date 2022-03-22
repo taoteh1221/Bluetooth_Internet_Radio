@@ -51,7 +51,7 @@
 
 
 # Version of this script
-APP_VERSION="1.00.6" # 2022/MARCH/21ST
+APP_VERSION="1.00.7" # 2022/MARCH/22ND
 
 
 # If parameters are added via command line
@@ -1152,7 +1152,7 @@ select opt in $OPTIONS; do
         ######################################
         
         # kill any background instances of pyradio
-        SCREENS_DETACHED=$(screen -ls | grep Detached)
+        SCREENS_DETACHED=$(screen -ls | grep Detached | grep "pyradio")
         if [ "$SCREENS_DETACHED" != "" ]; then
         echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
         fi
@@ -1295,7 +1295,7 @@ select opt in $OPTIONS; do
                 # Export the vars to screen's bash session, OR IT WON'T RUN!
                 export PLAY_NUM=$PLAY_NUM
                 export LOAD_CUSTOM_STATIONS=$LOAD_CUSTOM_STATIONS
-                screen -dmS radio bash -c 'pyradio --play ${PLAY_NUM} ${LOAD_CUSTOM_STATIONS}'
+                screen -dmS pyradio bash -c 'pyradio --play ${PLAY_NUM} ${LOAD_CUSTOM_STATIONS}'
             
                 elif [ "$key" = 's' ] || [ "$key" = 'S' ]; then
                 
@@ -1343,7 +1343,7 @@ select opt in $OPTIONS; do
         echo " "
         
             # kill any background instances of pyradio
-            SCREENS_DETACHED=$(screen -ls | grep Detached)
+            SCREENS_DETACHED=$(screen -ls | grep Detached | grep "pyradio")
             if [ "$SCREENS_DETACHED" != "" ]; then
             echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
             fi
