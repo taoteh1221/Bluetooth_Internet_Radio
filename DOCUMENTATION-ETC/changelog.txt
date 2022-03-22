@@ -58,7 +58,7 @@ Initial version
 -------------------------------------------------------------------
 1.00.5:
 
--BUG FIX: Comptibility with raspberry pi devices
+-BUG FIX: Compatibility with raspberry pi devices
 
 -BUG FIX: bluetooth_autoconnect runtime logic
 
@@ -67,6 +67,18 @@ Initial version
 -Documentation
 
 -------------------------------------------------------------------
+
+
+-------------------------------------------------------------------
+1.00.6:
+
+-BUG FIX: Compatibility with upgrading the "Easter Egg" version of this app (bundled in crypto tracker / ticker apps)
+
+-Documentation
+
+-------------------------------------------------------------------
+
+
 
 
 
