@@ -402,8 +402,10 @@ if [ ! -f $DEP_CHECK_LOG ]; then
 
     # If no dependencies missing, speed up next runtime of script
     if [ -z "$DEPS_MISSING" ]; then
-    export DATE=$DATE
     export SCRIPT_LOCATION=$SCRIPT_LOCATION
+    export DATE=$DATE
+    export TIME=$TIME
+    export DEP_CHECK_LOG=$DEP_CHECK_LOG
     bash -c "echo 'all primary dependencies installed for ${SCRIPT_LOCATION}: ${DATE} @ ${TIME}' >> ${DEP_CHECK_LOG}"
     fi
     
