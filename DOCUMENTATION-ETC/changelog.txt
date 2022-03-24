@@ -96,7 +96,7 @@ Initial version
 
 -Better upgrade version detection precision
 
--Cleaner primary dependency check flagging and rechecking (in case of upgrades etc)
+-Cleaner primary dependency checks
 
 -------------------------------------------------------------------
 
