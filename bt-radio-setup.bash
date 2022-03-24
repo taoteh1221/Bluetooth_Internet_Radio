@@ -73,10 +73,18 @@ export PATH=$PATH
 fi
 				
 
-# EXPLICITLY set any ~/.local/bin paths (for pyradio, etc)
+# EXPLICITLY set any ~/.local/bin paths
 # Export too, in case we are calling another bash instance in this script
 if [ -d ~/.local/bin ]; then
 PATH=~/.local/bin:$PATH
+export PATH=$PATH
+fi
+				
+
+# EXPLICITLY set any /usr/sbin path
+# Export too, in case we are calling another bash instance in this script
+if [ -d /usr/sbin ]; then
+PATH=/usr/sbin:$PATH
 export PATH=$PATH
 fi
 
@@ -208,6 +216,22 @@ echo " "
 sudo apt update
 
 sudo apt install python3 -y
+
+fi
+
+
+# Install xdg-user-dirs if needed
+XDGUSER_PATH=$(which xdg-user-dir)
+
+if [ -z "$XDGUSER_PATH" ]; then
+
+echo " "
+echo "${cyan}Installing required component xdg-user-dirs, please wait...${reset}"
+echo " "
+
+sudo apt update
+
+sudo apt install xdg-user-dirs -y
 
 fi
 
@@ -386,7 +410,7 @@ bluetooth_autoconnect () {
     if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
     
     echo " "
-    echo "${cyan}Installing required component bluetooth-autoconnect and dependancies, please wait...${reset}"
+    echo "${cyan}Installing required component bluetooth-autoconnect and dependencies, please wait...${reset}"
     echo " "
     
     sudo apt update
@@ -1053,19 +1077,27 @@ select opt in $OPTIONS; do
         
         sudo apt update
         
+        sleep 1
+        
         # Install screen and mpv instead of mplayer, it's more stable
         sudo apt install screen mpv -y
+        
+        sleep 1
         
         # mplayer as backup if distro doesn't have an mpv package (mpv will be used first automatically if found)
         sudo apt install mplayer -y
         
+        sleep 1
+        
         # vlc as backup if distro doesn't have an mpv or mplayer package
         sudo apt install vlc -y
+        
+        sleep 1
         
         # Install pyradio python3 dependencies
         sudo apt install python3-setuptools python3-wheel python3-pip python3-requests python3-dnspython python3-psutil -y
         
-        sleep 5
+        sleep 3
         
         # SPECIFILLY NAME IT WITH -O, TO OVERWRITE ANY PREVIOUS COPY...ALSO --no-cache TO ALWAYS GET LATEST COPY
         # Renaming pyradio's installation script may not work...

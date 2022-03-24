@@ -23,9 +23,11 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 Into the RASPBERRY-PI-USB-BOOT.txt file, add in the way to get unsupporteed devices to boot from a usb disk, with a fat32-formatted microsd only containing their bootcode.bin file.
 
 
-Maybe dietpi devices could get a2dp support so it works on them too with pipewire? Maybe an option to use pipewire instead of pulseaudio? Seems only rapberry pi os supports a2dp 'out-of-the-box' using pulseaudio (from my tests).
-https://wiki.debian.org/PipeWire
-https://wiki.debian.org/BluetoothUser/a2dp
+Dietpi error when trying to run ANY 'systemctl' command with the --user flag (systemctl status --system WORKS, systemctl status --user DOES NOT WORK): 
+
+Failed to connect to bus: $DBUS_SESSION_BUS_ADDRESS and $XDG_RUNTIME_DIR not defined (consider using --machine=<user>@.host --user to connect to bus of other user)
+
+Looks like it doesn't start pulseaudio on boot or login either. pam seems properly setup in systemd, must be an error with target type or some other setting in the systemd service file for pulseaudio? Or is it a systemd user config that's messed up? THIS WAS EVEN AN ISSUE WITH A FRESH NEW SUDO USER ACCONT SETUP (DIFFERENT FROM 'dietpi' PROVISIONED WITH THE DISK IMAGE).
 
 
 ///////////////////////////////////////////////////////
