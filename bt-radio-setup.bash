@@ -7,10 +7,10 @@
 
 # https://github.com/taoteh1221/Bluetooth_Internet_Radio
 
-# Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi / DietPi,
+# Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi,
 # connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
 
-# To install automatically on Ubuntu / DietPi OS / RaspberryPi OS, copy => paste => run the command below in a
+# To install automatically on Ubuntu / RaspberryPi OS, copy => paste => run the command below in a
 # terminal program (using the 'Terminal' app in the system menu, or over remote SSH), while logged in AS THE
 # USER THAT WILL RUN THE APP (user must have sudo privileges):
 
@@ -99,7 +99,7 @@ DATE=$(date '+%Y-%m-%d')
 TIME=$(date '+%H:%M:%S')
 
 # Current timestamp
-CURRENT_TIMESTAMP=$(/usr/bin/date +%s)
+CURRENT_TIMESTAMP=$(date +%s)
 
 
 # If a symlink, get link target for script location
