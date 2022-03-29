@@ -51,7 +51,7 @@
 
 
 # Version of this script
-APP_VERSION="1.01.0" # 2022/MARCH/23RD
+APP_VERSION="1.02.0" # 2022/MARCH/29TH
 
 
 # If parameters are added via command line
@@ -1286,8 +1286,13 @@ select opt in $OPTIONS; do
             echo " "
             echo "Afterwards, this notice will dissapear, and the normal pyradio options will show instead."
             echo " "
-            echo "IF YOU GET 'connection failed' OR LOW VOLUME, DON'T WORRY, WE AUTO-FIX THAT #NEXT TIME# YOU RUN PYRADIO."
-            echo " "
+            
+                # Raspberry pi device compatibilities NOTICE
+                if [ -f "/usr/bin/raspi-config" ]; then
+                echo "IF YOU GET 'connection failed' OR LOW VOLUME, DON'T WORRY, WE AUTO-FIX THAT FOR RASPBERRY PI DEVICES #NEXT TIME# YOU RUN PYRADIO."
+                echo " "
+                fi
+                
             echo "###########################################################################################"
             echo "${reset} "
             
