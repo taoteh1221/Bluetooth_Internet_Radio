@@ -102,7 +102,9 @@ Initial version
 
 
 -------------------------------------------------------------------
-1.02.0:
+1.01.1:
+
+BUG FIX: Fixed bluetooth auto-connect logic
 
 -Code cleanup
 
