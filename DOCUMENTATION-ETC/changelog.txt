@@ -104,7 +104,7 @@ Initial version
 -------------------------------------------------------------------
 1.01.1:
 
-BUG FIX: Fixed bluetooth auto-connect logic
+-BUG FIX: Fixed bluetooth auto-connect logic
 
 -Code cleanup
 
@@ -113,9 +113,12 @@ BUG FIX: Fixed bluetooth auto-connect logic
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.01.2:
 
+-BUG FIX: Fixed detection of pyradio first-time setup
 
-
+-------------------------------------------------------------------
 
 
 
