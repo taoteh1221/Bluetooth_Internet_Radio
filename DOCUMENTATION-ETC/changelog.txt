@@ -121,6 +121,14 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.02.0:
+
+-Better support for stopping and restarting running pyradio instances (whether remote OR local terminal sessions)
+
+-------------------------------------------------------------------
+
+
 
 
 
