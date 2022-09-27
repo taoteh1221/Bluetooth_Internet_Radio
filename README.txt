@@ -2,10 +2,46 @@
 ############################################################################################################################
 
 
-Bluetooth Internet Radio - Developed by Michael Kilday <mike@dragonfrugal.com> (Copyright 2022 GPLv3)
+Bluetooth Internet Radio - Developed by Michael Kilday <mike@dragonfrugal.com>
+
+Copyright 2022 GPLv3
 
 
 Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi, connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
+
+Project Website: https://sourceforge.net/projects/bluetooth-internet-radio/
+
+Download Latest Version: https://github.com/taoteh1221/Bluetooth_Internet_Radio/releases
+
+Issue Reporting (Features / Issues / Help): https://github.com/taoteh1221/Bluetooth_Internet_Radio/issues
+
+Discord: https://discord.gg/WZVK2nm
+
+Telegram: https://t.me/dragonfrugal
+
+Twitter: https://twitter.com/taoteh1221
+
+Private Contact: https://dragonfrugal.com/contact
+
+
+Donations support further development... 
+
+Bitcoin:  3Nw6cvSgnLEFmQ1V4e8RSBG23G7pDjF3hW
+
+Ethereum:  0x644343e8D0A4cF33eee3E54fE5d5B8BFD0285EF8
+
+Helium:  13xs559435FGkh39qD9kXasaAnB8JRF8KowqPeUmKHWU46VYG1h
+
+Solana:  GvX4AU4V9atTBof9dT9oBnLPmPiz3mhoXBdqcxyRuQnU
+
+Github Sponsors:  https://github.com/sponsors/taoteh1221
+
+Patreon:   https://www.patreon.com/dragonfrugal
+
+PayPal:    https://www.paypal.me/dragonfrugal
+
+
+#############################################################################################
 
 
 To install automatically on Ubuntu / RaspberryPi OS, copy => paste => run the command below in a terminal program (using the 'Terminal' app in the system menu, or over remote SSH), while logged in AS THE USER THAT WILL RUN THE APP (user must have sudo privileges):
