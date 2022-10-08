@@ -136,6 +136,8 @@ Initial version
 
 -Bash script improvements
 
+-"About this app" section
+
 -Revised example playlist
 
 -Revised README

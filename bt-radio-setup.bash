@@ -51,7 +51,7 @@
 
 
 # Version of this script
-APP_VERSION="1.03.0" # 2022/APRIL/17TH
+APP_VERSION="1.03.0" # 2022/OCTOBER/8TH
 
 
 # If parameters are added via command line
@@ -606,7 +606,7 @@ echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status pyradio_install pyradio_fix pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps"
+OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status pyradio_install pyradio_fix pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
 
 
 # start options
@@ -1986,6 +1986,68 @@ select opt in $OPTIONS; do
         done
                
         echo " "
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "about_this_app" ]; then
+       
+        echo "${cyan}"
+        echo "Copyright 2022 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com"
+        echo " "
+        
+        echo "https://github.com/taoteh1221/Bluetooth_Internet_Radio"
+        echo " "
+        
+        echo "Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi,"
+        echo "connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run)."
+        echo " "
+        
+        echo "To install automatically on Ubuntu / RaspberryPi OS / Armbian, copy => paste => run the command below in a"
+        echo "terminal program (using the 'Terminal' app in the system menu, or over remote SSH), while logged in AS THE"
+        echo "USER THAT WILL RUN THE APP (user must have sudo privileges):"
+        echo " "
+        
+        echo "wget --no-cache -O bt-radio-setup.bash https://tinyurl.com/bt-radio-setup;chmod +x bt-radio-setup.bash;./bt-radio-setup.bash"
+        echo " "
+        
+        echo "AFTER installation, ~/radio is installed as a shortcut command pointing to this script,"
+        echo "and paired bluetooth reconnects (if disconnected) when you start a new terminal session."
+        echo " "
+        
+        echo "A command line parameter can be passed to auto-select menu choices. Multi sub-option selecting is available too,"
+        echo "by seperating each sub-option with a space, AND ecapsulating everything in quotes like \"option1 sub-option2 sub-sub-option3\"."
+        echo " "
+        
+        echo "Running normally (diplays options to choose from):"
+        echo " "
+        echo "${green}~/radio${cyan}"
+        echo " "
+        echo "Auto-selecting single / multi sub-option examples ${red}(MULTI SUB-OPTIONS #MUST# BE IN QUOTES!)${cyan}:"
+        echo " "
+        echo "${green}~/radio \"1 y\"${cyan}"
+        echo "(checks for / confirms script upgrade)"
+        echo " "
+        echo "${green}~/radio \"7 1 b\"${cyan}"
+        echo "(plays pyradio default station in background)"
+        echo " "
+        echo "${green}~/radio 8${cyan}"
+        echo "(stops pyradio background playing)"
+        echo " "
+        echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\"${cyan}"
+        echo "(connect bluetooth device by mac address)"
+        echo " "
+        echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\"${cyan}"
+        echo "(remove bluetooth device by mac address)"
+        echo " "
+        echo "${green}~/radio \"12 3\"${cyan}"
+        echo "(shows paired bluetooth devices)"
+        echo "${reset} "
+        echo " "
+        
+        exit
         
         break
         
