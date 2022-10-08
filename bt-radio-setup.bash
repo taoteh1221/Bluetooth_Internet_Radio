@@ -51,7 +51,7 @@
 
 
 # Version of this script
-APP_VERSION="1.02.0" # 2022/APRIL/17TH
+APP_VERSION="1.03.0" # 2022/APRIL/17TH
 
 
 # If parameters are added via command line
@@ -93,6 +93,10 @@ export XAUTHORITY=~/.Xauthority
 				
 # Export current working directory, in case we are calling another bash instance in this script
 export PWD=$PWD
+
+
+######################################
+
 
 # Get date / time
 DATE=$(date '+%Y-%m-%d')
@@ -137,6 +141,9 @@ if [ -z "$TERMINAL_USERNAME" ]; then
 fi
 
 
+######################################
+
+
 # Get the operating system and version
 if [ -f /etc/os-release ]; then
     # freedesktop.org and systemd
@@ -169,6 +176,9 @@ else
 fi
 
 
+######################################
+
+
 # Setup color coding
 # https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
 if hash tput > /dev/null 2>&1; then
@@ -190,6 +200,11 @@ reset=``
 fi
 
 
+######################################
+
+
+echo " "
+
 # Quit if ACTUAL USERNAME is root
 if [ "$TERMINAL_USERNAME" == "root" ]; then 
  echo " "
@@ -199,6 +214,23 @@ if [ "$TERMINAL_USERNAME" == "root" ]; then
  echo " "
  exit
 fi
+
+
+if [ -f "/etc/debian_version" ]; then
+echo "${cyan}Your system has been detected as Debian-based, which is compatible with this automated installation script."
+echo " "
+echo "Continuing...${reset}"
+echo " "
+else
+echo "${red}Your system has been detected as NOT BEING Debian-based. Your system is NOT compatible with this automated installation script."
+echo " "
+echo "Exiting...${reset}"
+echo " "
+exit
+fi
+
+
+######################################
 
 
 # Get primary dependency apps, if we haven't yet
@@ -396,6 +428,13 @@ sudo apt install bc -y
 fi
 
 # dependency check END
+
+
+######################################
+
+
+# For setting user agent header in curl, since some API servers !REQUIRE! a set user agent OR THEY BLOCK YOU
+CUSTOM_CURL_USER_AGENT_HEADER="User-Agent: Curl (${OS}/$VER; compatible;)"
 
 
 ###############################################################################################
@@ -707,19 +746,6 @@ select opt in $OPTIONS; do
              echo "${cyan}Exiting...${reset}"
              echo " "
              exit
-            fi
-    
-            if [ -f "/etc/debian_version" ]; then
-            echo "${cyan}Your system has been detected as Debian-based, which is compatible with this automated installation script."
-            echo " "
-            echo "Continuing...${reset}"
-            echo " "
-            else
-            echo "${red}Your system has been detected as NOT BEING Debian-based. Your system is NOT compatible with this automated installation script."
-            echo " "
-            echo "Exiting...${reset}"
-            echo " "
-            exit
             fi
         
         ######################################
@@ -1068,19 +1094,6 @@ select opt in $OPTIONS; do
              echo "${cyan}Exiting...${reset}"
              echo " "
              exit
-            fi
-
-            if [ -f "/etc/debian_version" ]; then
-            echo "${cyan}Your system has been detected as Debian-based, which is compatible with this automated installation script."
-            echo " "
-            echo "Continuing...${reset}"
-            echo " "
-            else
-            echo "${red}Your system has been detected as NOT BEING Debian-based. Your system is NOT compatible with this automated installation script."
-            echo " "
-            echo "Exiting...${reset}"
-            echo " "
-            exit
             fi
         
         ######################################
