@@ -22,7 +22,7 @@
 # A command line parameter can be passed to auto-select menu choices. Multi sub-option selecting is available too,
 # by seperating each sub-option with a space, AND ecapsulating everything in quotes like "option1 sub-option2 sub-sub-option3".
 
-# Running normally (diplays options to choose from):
+# Running normally (displays options to choose from):
 
 # ~/radio
  
@@ -570,7 +570,7 @@ echo "Shortcut to this script: ${green}~/radio${cyan}"
 echo " "
 echo "Paired bluetooth reconnects (if disconnected) when you start a terminal session"
 echo " "
-echo "Running normally (diplays options to choose from):"
+echo "Running normally (displays options to choose from):"
 echo " "
 echo "${green}~/radio${cyan}"
 echo " "
@@ -2060,7 +2060,7 @@ select opt in $OPTIONS; do
         echo "by seperating each sub-option with a space, AND ecapsulating everything in quotes like \"option1 sub-option2 sub-sub-option3\"."
         echo " "
         
-        echo "Running normally (diplays options to choose from):"
+        echo "Running normally (displays options to choose from):"
         echo " "
         echo "${green}~/radio${cyan}"
         echo " "

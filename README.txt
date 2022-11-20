@@ -56,7 +56,7 @@ AFTER installation, ~/radio is installed as a shortcut command pointing to this 
 
 A command line parameter can be passed to auto-select menu choices. Multi sub-option selecting is available too, by seperating each sub-option with a space, AND ecapsulating everything in quotes like "option1 sub-option2 sub-sub-option3".
 
-Running normally (diplays options to choose from):
+Running normally (displays options to choose from):
 
 ~/radio
  
