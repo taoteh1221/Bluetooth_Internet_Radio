@@ -606,7 +606,7 @@ echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status pyradio_install pyradio_fix pyradio_on pyradio_off bluetooth_status bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status pyradio_install pyradio_fix pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
 
 
 # start options
