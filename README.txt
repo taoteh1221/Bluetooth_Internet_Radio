@@ -40,6 +40,8 @@ Patreon:   https://www.patreon.com/dragonfrugal
 
 PayPal:    https://www.paypal.me/dragonfrugal
 
+Venmo:     https://account.venmo.com/u/taoteh1221
+
 
 #############################################################################################
 
