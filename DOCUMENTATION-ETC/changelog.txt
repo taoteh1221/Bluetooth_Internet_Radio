@@ -153,6 +153,16 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.05.0:
+
+-Added ability to choose which station number to play, before running pyradio
+
+-Miscellaneous user experience improvements
+
+-------------------------------------------------------------------
+
+
 
 
 

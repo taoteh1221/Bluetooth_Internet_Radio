@@ -65,8 +65,8 @@ Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE I
 ~/radio "1 y"
 (checks for / confirms script upgrade)
  
-~/radio "7 1 b"
-(plays pyradio default station in background)
+~/radio "7 1 b3"
+(plays pyradio 3rd station in background)
  
 ~/radio 8
 (stops pyradio background playing)
