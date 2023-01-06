@@ -1247,7 +1247,7 @@ select opt in $OPTIONS; do
                 if [ "$opt" = "connection_failed" ]; then
 
                 # mpv fails opening streams in pyradio on low power devices, unless we set the connection timeout high
-                sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config
+                sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config > /dev/null 2>&1
          
                 echo " "
                 echo "${green}Increased pyradio connection timout to 30 seconds.${reset}"
@@ -1259,7 +1259,7 @@ select opt in $OPTIONS; do
                 sudo apt install mplayer -y
                 
                 # mpv crashes low power devices, mplayer does not (and vlc doesn't handle network disruption too well)
-                sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config
+                sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config > /dev/null 2>&1
                 
                 echo " "
                 echo "${green}Set mplayer to default pyradio stream player.${reset}"
@@ -1269,7 +1269,7 @@ select opt in $OPTIONS; do
                elif [ "$opt" = "mpv_low_volume" ]; then
                 
                 # mpv default volume set to 100
-                sed -i 's/volume=.*/volume=100/g' ~/.config/mpv/mpv.conf
+                sed -i 's/volume=.*/volume=100/g' ~/.config/mpv/mpv.conf > /dev/null 2>&1
                 
                 echo " "
                 echo "${green}Increased mpv volume to 100.${reset}"
@@ -1422,15 +1422,15 @@ select opt in $OPTIONS; do
                 if [ -f "/usr/bin/raspi-config" ]; then
                 
                 # mpv crashes a raspberry pi zero, mplayer does not (and vlc doesn't handle network disruption too well)
-                sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config
+                sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config > /dev/null 2>&1
                 
                 sleep 1
 
                 # mpv fails opening streams in pyradio on raspi devices, unless we set the connection timeout high
-                sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config
+                sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config > /dev/null 2>&1
                 
                 # mpv default volume is VERY low on raspi os, so we set it to 100 instead
-                sed -i 's/volume=.*/volume=100/g' ~/.config/mpv/mpv.conf
+                sed -i 's/volume=.*/volume=100/g' ~/.config/mpv/mpv.conf > /dev/null 2>&1
          
                 echo " "
                 echo "${red}Raspberry Pi compatibility settings for pyradio have been applied.${reset}"
