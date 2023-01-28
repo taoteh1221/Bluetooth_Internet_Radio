@@ -1,5 +1,10 @@
 #!/bin/bash
 
+COPYRIGHT_YEARS="2022-2023"
+
+# Version of this script
+APP_VERSION="1.07.0" # 2023/JANUARY/28TH
+
 ########################################################################################################################
 ########################################################################################################################
 
@@ -48,10 +53,6 @@
 
 ########################################################################################################################
 ########################################################################################################################
-
-
-# Version of this script
-APP_VERSION="1.06.0" # 2022/DECEMBER/30TH
 
 
 # If parameters are added via command line
@@ -233,16 +234,33 @@ fi
 ######################################
 
 
+# apt_clear_update function START
+apt_clear_update () {
+
+     if [ "$APT_CACHE_CLEARED" != "1" ]; then
+     
+     # In case package list was ever corrupted (since we are about to rebuild it anyway...avoids possible errors)
+     sudo rm -rf /var/lib/apt/lists/* -vf
+     
+     APT_CACHE_CLEARED=1
+     
+     sleep 2
+     
+     sudo apt update
+     
+     sleep 2
+     
+     fi
+
+}
+# apt_clear_update function END
+
+
+######################################
+
+
 # Get primary dependency apps, if we haven't yet
-
-# In case package list was ever corrupted (since we are about to rebuild it anyway...avoids possible errors)
-sudo rm -rf /var/lib/apt/lists/* -vf
-
-sleep 2
-
-sudo apt update
-
-sleep 2
+    
     
 # If 'python3' wasn't found, install it
 # python3's FULL PATH (we DONT want python [which is python2])
@@ -250,11 +268,12 @@ PYTHON_PATH=$(which python3)
 
 if [ -z "$PYTHON_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component python3, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install python3 -y
 
@@ -266,11 +285,12 @@ XDGUSER_PATH=$(which xdg-user-dir)
 
 if [ -z "$XDGUSER_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component xdg-user-dirs, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install xdg-user-dirs -y
 
@@ -282,11 +302,12 @@ SYSLOG_PATH=$(which rsyslogd)
 
 if [ -z "$SYSLOG_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component rsyslog, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install rsyslog -y
 
@@ -298,11 +319,12 @@ GIT_PATH=$(which git)
 
 if [ -z "$GIT_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component git, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install git -y
 
@@ -314,11 +336,12 @@ CURL_PATH=$(which curl)
 
 if [ -z "$CURL_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component curl, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install curl -y
 
@@ -330,11 +353,12 @@ JQ_PATH=$(which jq)
 
 if [ -z "$JQ_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component jq, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install jq -y
 
@@ -346,11 +370,12 @@ WGET_PATH=$(which wget)
 
 if [ -z "$WGET_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component wget, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install wget -y
 
@@ -362,11 +387,12 @@ SED_PATH=$(which sed)
 
 if [ -z "$SED_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component sed, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install sed -y
 
@@ -378,11 +404,12 @@ LESS_PATH=$(which less)
 				
 if [ -z "$LESS_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component less, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install less -y
 
@@ -394,11 +421,12 @@ EXPECT_PATH=$(which expect)
 				
 if [ -z "$EXPECT_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component expect, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install expect -y
 
@@ -410,11 +438,12 @@ AVAHID_PATH=$(which avahi-daemon)
 
 if [ -z "$AVAHID_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component avahi-daemon, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install avahi-daemon -y
 
@@ -426,11 +455,12 @@ BC_PATH=$(which bc)
 
 if [ -z "$BC_PATH" ]; then
 
+# Clears AND updates apt cache (IF it wasn't already this runtime session)
+apt_clear_update
+
 echo " "
 echo "${cyan}Installing required component bc, please wait...${reset}"
 echo " "
-
-sudo apt update
 
 sudo apt install bc -y
 
@@ -456,12 +486,13 @@ bt_autoconnect_install () {
 
     # Install bluetooth-autoconnect.py if needed (AND we are #NOT# running as sudo)
     if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
+
+    # Clears AND updates apt cache (IF it wasn't already this runtime session)
+    apt_clear_update
     
     echo " "
     echo "${cyan}Installing required component bluetooth-autoconnect and dependencies, please wait...${reset}"
     echo " "
-    
-    sudo apt update
     
     # Install python3 prctl
     sudo apt install python3-prctl -y
@@ -784,11 +815,12 @@ select opt in $OPTIONS; do
         echo "${cyan}Making sure your system is updated before installation, please wait...${reset}"
         
         echo " "
-        			
-        apt-get update
+
+        # Clears AND updates apt cache (IF it wasn't already this runtime session)
+        apt_clear_update
         
         #DO NOT RUN dist-upgrade, bad things can happen, lol
-        apt-get upgrade -y
+        apt upgrade -y
         
         echo " "
         				
@@ -850,6 +882,9 @@ select opt in $OPTIONS; do
 				
 				fi
         
+
+        # Clears AND updates apt cache (IF it wasn't already this runtime session)
+        apt_clear_update
         				
         echo " "
         
@@ -1171,12 +1206,13 @@ select opt in $OPTIONS; do
         ######################################
         
         # https://github.com/coderholic/pyradio/blob/master/build.md
+
+        # Clears AND updates apt cache (IF it wasn't already this runtime session)
+        apt_clear_update
         
         echo " "
         echo "${green}Installing pyradio and required components, please wait...${reset}"
         echo " "
-        
-        sudo apt update
         
         sleep 1
         
@@ -1263,8 +1299,10 @@ select opt in $OPTIONS; do
        
                 break
                elif [ "$opt" = "system_freezes" ]; then
+
+                # Clears AND updates apt cache (IF it wasn't already this runtime session)
+                apt_clear_update
                 
-                sudo apt update
                 sudo apt install mplayer -y
                 
                 # mpv crashes low power devices, mplayer does not (and vlc doesn't handle network disruption too well)
@@ -2118,10 +2156,13 @@ select opt in $OPTIONS; do
         
         elif [ "$opt" = "about_this_app" ]; then
        
-        echo "${cyan}"
-        echo "Copyright 2022 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com"
+        echo "${cyan} "
+        echo "Copyright $COPYRIGHT_YEARS GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com"
         echo " "
         
+        echo " "
+        echo "Version: ${APP_VERSION}"
+        echo " "
         echo "https://github.com/taoteh1221/Bluetooth_Internet_Radio"
         echo " "
         
