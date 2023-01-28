@@ -234,6 +234,15 @@ fi
 
 
 # Get primary dependency apps, if we haven't yet
+
+# In case package list was ever corrupted (since we are about to rebuild it anyway...avoids possible errors)
+sudo rm -rf /var/lib/apt/lists/* -vf
+
+sleep 2
+
+sudo apt update
+
+sleep 2
     
 # If 'python3' wasn't found, install it
 # python3's FULL PATH (we DONT want python [which is python2])
@@ -1398,12 +1407,12 @@ select opt in $OPTIONS; do
         
                 if [ "$keystroke" = 'y' ] || [ "$keystroke" = 'Y' ]; then
             
-    		    echo " "
-    			echo "${cyan}Initiating pyradio first-time setup, please wait...${reset}"
+    		      echo " "
+    			 echo "${cyan}Initiating pyradio first-time setup, please wait...${reset}"
                 
                 sleep 3
     			
-    			pyradio --play
+    			 pyradio --play
             
                 else
                 echo "${green}pyradio first-time setup has been cancelled.${reset}"
