@@ -34,21 +34,27 @@ APP_VERSION="1.07.0" # 2023/JANUARY/28TH
 # Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE IN QUOTES!):
  
 # ~/radio "1 y"
+# ~/radio "upgrade y"
 # (checks for / confirms script upgrade)
  
 # ~/radio "7 1 b3"
-# (plays pyradio 3rd station in background)
+# ~/radio "play 1 b3"
+# (plays pyradio default playlist 3rd station in background)
  
 # ~/radio 8
-# (stops pyradio background playing)
+# ~/radio stop
+# (stops pyradio playback)
  
 # ~/radio "10 XX:XX:XX:XX:XX:XX"
+# ~/radio "connect XX:XX:XX:XX:XX:XX"
 # (connect bluetooth device by mac address)
  
 # ~/radio "11 XX:XX:XX:XX:XX:XX"
+# ~/radio "remove XX:XX:XX:XX:XX:XX"
 # (remove bluetooth device by mac address)
  
 # ~/radio "12 3"
+# ~/radio "devices paired"
 # (shows paired bluetooth devices)
 
 ########################################################################################################################
@@ -59,10 +65,48 @@ APP_VERSION="1.07.0" # 2023/JANUARY/28TH
 # (CLEANEST WAY TO RUN PARAMETER INPUT #TO AUTO-SELECT MULTIPLE CONSECUTIVE OPTION MENUS#)
 # (WE CAN PASS THEM #IN QUOTES# AS: command "option1 sub-option2 sub-sub-option3")
 if [ "$1" != "" ] && [ "$APP_RECURSE" != "1" ]; then
+
+# Flag recursion and export it
 APP_RECURSE=1
 export APP_RECURSE=$APP_RECURSE
-printf "%s\n" $1 | ~/radio
+
+# Convert any human-readable params to their numeric counterpart(s)
+convert="$1"
+
+# Multi-options MUST be converted FIRST
+# (helps avoid mis-converting PRIMARY options [if we add a lot in the future])
+
+# devices internal
+convert=$(echo "$convert" | sed -r "s/devices internal/12 1/g")
+
+# devices available
+convert=$(echo "$convert" | sed -r "s/devices available/12 2/g")
+
+# devices paired
+convert=$(echo "$convert" | sed -r "s/devices paired/12 3/g")
+
+# devices trusted
+convert=$(echo "$convert" | sed -r "s/devices trusted/12 4/g")
+
+# upgrade
+convert=$(echo "$convert" | sed -r "s/upgrade/1/g")
+
+# play
+convert=$(echo "$convert" | sed -r "s/play/7/g")
+
+# stop
+convert=$(echo "$convert" | sed -r "s/stop/8/g")
+
+# connect
+convert=$(echo "$convert" | sed -r "s/connect/10/g")
+
+# remove
+convert=$(echo "$convert" | sed -r "s/remove/11/g")
+
+# Pipe it through
+printf "%s\n" $convert | ~/radio
 exit
+
 fi
 
 
@@ -616,22 +660,28 @@ echo "${green}~/radio${cyan}"
 echo " "
 echo "Auto-selecting single / multi sub-option examples ${red}(MULTI SUB-OPTIONS #MUST# BE IN QUOTES!)${cyan}:"
 echo " "
-echo "${green}~/radio \"1 y\"${cyan}"
+echo "${green}~/radio \"1 y\""
+echo "${green}~/radio \"upgrade y\"${cyan}"
 echo "(checks for / confirms script upgrade)"
 echo " "
-echo "${green}~/radio \"7 1 b3\"${cyan}"
-echo "(plays pyradio 3rd station in background)"
+echo "${green}~/radio \"7 1 b3\""
+echo "${green}~/radio \"play 1 b3\"${cyan}"
+echo "(plays pyradio default playlist 3rd station in background)"
 echo " "
-echo "${green}~/radio 8${cyan}"
-echo "(stops pyradio background playing)"
+echo "${green}~/radio 8"
+echo "${green}~/radio stop${cyan}"
+echo "(stops pyradio playback)"
 echo " "
-echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\"${cyan}"
+echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\""
+echo "${green}~/radio \"connect XX:XX:XX:XX:XX:XX\"${cyan}"
 echo "(connect bluetooth device by mac address)"
 echo " "
-echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\"${cyan}"
+echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\""
+echo "${green}~/radio \"remove XX:XX:XX:XX:XX:XX\"${cyan}"
 echo "(remove bluetooth device by mac address)"
 echo " "
-echo "${green}~/radio \"12 3\"${cyan}"
+echo "${green}~/radio \"12 3\""
+echo "${green}~/radio \"devices paired\"${cyan}"
 echo "(shows paired bluetooth devices)"
 echo "${reset} "
 fi
@@ -1383,11 +1433,13 @@ select opt in $OPTIONS; do
                                 
                 	if [ -z "$CUSTOM_STATIONS_FILE" ]; then
                  	LOAD_CUSTOM_STATIONS=""
+                 	PLAYLIST_DESC="default"
                     echo " "
                  	echo "${green}Using default stations...${reset}"
                     echo " "
                  	else
                  	LOAD_CUSTOM_STATIONS="-s $CUSTOM_STATIONS_FILE"
+                 	PLAYLIST_DESC="custom"
                     echo " "
                     echo "${green}Using custom stations from: $CUSTOM_STATIONS_FILE${reset}"
                     echo " "
@@ -1395,6 +1447,7 @@ select opt in $OPTIONS; do
                 
                 break
                elif [ "$opt" = "default_stations" ]; then
+                PLAYLIST_DESC="default"
                 echo " "
                 echo "${green}Using default stations...${reset}"
                 echo " "
@@ -1513,7 +1566,7 @@ select opt in $OPTIONS; do
                 if [[ ${keystroke:0:1} == "b" ]] || [[ ${keystroke:0:1} == "B" ]]; then
                 
                 echo " "
-                echo "${green}Tuning pyradio to playlist ${PLAY_NUM}...${reset}"
+                echo "${green}Tuning pyradio to station ${PLAY_NUM}, in the ${PLAYLIST_DESC} playlist...${reset}"
                 echo " "
                 
                 # Export the vars to screen's bash session, OR IT WON'T RUN!
@@ -2158,7 +2211,6 @@ select opt in $OPTIONS; do
        
         echo "${cyan} "
         echo "Copyright $COPYRIGHT_YEARS GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com"
-        echo " "
         
         echo " "
         echo "Version: ${APP_VERSION}"
@@ -2192,22 +2244,28 @@ select opt in $OPTIONS; do
         echo " "
         echo "Auto-selecting single / multi sub-option examples ${red}(MULTI SUB-OPTIONS #MUST# BE IN QUOTES!)${cyan}:"
         echo " "
-        echo "${green}~/radio \"1 y\"${cyan}"
+        echo "${green}~/radio \"1 y\""
+        echo "${green}~/radio \"upgrade y\"${cyan}"
         echo "(checks for / confirms script upgrade)"
         echo " "
-        echo "${green}~/radio \"7 1 b3\"${cyan}"
-        echo "(plays pyradio 3rd station in background)"
+        echo "${green}~/radio \"7 1 b3\""
+        echo "${green}~/radio \"play 1 b3\"${cyan}"
+        echo "(plays pyradio default playlist 3rd station in background)"
         echo " "
-        echo "${green}~/radio 8${cyan}"
-        echo "(stops pyradio background playing)"
+        echo "${green}~/radio 8"
+        echo "${green}~/radio stop${cyan}"
+        echo "(stops pyradio playback)"
         echo " "
-        echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\"${cyan}"
+        echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\""
+        echo "${green}~/radio \"connect XX:XX:XX:XX:XX:XX\"${cyan}"
         echo "(connect bluetooth device by mac address)"
         echo " "
-        echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\"${cyan}"
+        echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\""
+        echo "${green}~/radio \"remove XX:XX:XX:XX:XX:XX\"${cyan}"
         echo "(remove bluetooth device by mac address)"
         echo " "
-        echo "${green}~/radio \"12 3\"${cyan}"
+        echo "${green}~/radio \"12 3\""
+        echo "${green}~/radio \"devices paired\"${cyan}"
         echo "(shows paired bluetooth devices)"
         echo "${reset} "
         echo " "

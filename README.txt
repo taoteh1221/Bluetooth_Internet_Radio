@@ -63,21 +63,27 @@ Running normally (displays options to choose from):
 Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE IN QUOTES!):
  
 ~/radio "1 y"
+~/radio "upgrade y"
 (checks for / confirms script upgrade)
  
 ~/radio "7 1 b3"
-(plays pyradio 3rd station in background)
+~/radio "play 1 b3"
+(plays pyradio default playlist 3rd station in background)
  
 ~/radio 8
-(stops pyradio background playing)
+~/radio stop
+(stops pyradio playback)
  
 ~/radio "10 XX:XX:XX:XX:XX:XX"
+~/radio "connect XX:XX:XX:XX:XX:XX"
 (connect bluetooth device by mac address)
  
 ~/radio "11 XX:XX:XX:XX:XX:XX"
+~/radio "remove XX:XX:XX:XX:XX:XX"
 (remove bluetooth device by mac address)
  
 ~/radio "12 3"
+~/radio "devices paired"
 (shows paired bluetooth devices)
 
 
