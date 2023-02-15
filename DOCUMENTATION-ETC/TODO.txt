@@ -20,6 +20,9 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 ///////////////////////////////////////////////////////
 
 
+CLEARLY LABLE ARCH LINUX SUPPORT AS A "WORK-IN-PROGRESS".
+
+
 Into the RASPBERRY-PI-USB-BOOT.txt file, add in the way to get unsupporteed devices to boot from a usb disk, with a fat32-formatted microsd only containing their bootcode.bin file.
 
 
@@ -39,6 +42,9 @@ FEATURES / STRUCTURING SECTION
 ///////////////////////////////////////////////////////
 
 
+
+
+Work more on Arch Linux support for the auto-installer.
 
 
 ///////////////////////////////////////////////////////
