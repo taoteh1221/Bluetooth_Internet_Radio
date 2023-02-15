@@ -278,39 +278,41 @@ fi
 ######################################
 
 
-echo "${yellow}Does the Operating System on this device update using the \"Rolling Release\" model (Kali, Manjaro, Ubuntu Rolling Rhino, Debian Unstable, etc), or the \"Long-Term Release\" model (Ubuntu, Raspberry Pi OS, Armbian Stable, Diet Pi, etc)?"
-echo " "
-echo "${red}(You can SEVERLY MESS UP a \"Rolling Release\" Operating System IF YOU DO NOT CHOOSE CORRECTLY HERE! In that case, you can SAFELY choose \"I don't know\".)${reset}"
-echo " "
-
-echo "Enter the NUMBER next to your chosen option.${reset}"
-
-echo " "
-
-OPTIONS="rolling long_term i_dont_know"
-
-select opt in $OPTIONS; do
-        if [ "$opt" = "long_term" ]; then
-        ALLOW_APT_UPGRADE="yes"
-        echo " "
-        echo "${green}Allowing system-wide updates before installs.${reset}"
-        break
-       else
-        ALLOW_APT_UPGRADE="no"
-        echo " "
-        echo "${green}Disabling system-wide updates before installs.${reset}"
-        break
-       fi
-done
-       
-echo " "
-
-
-######################################
-
-
 # clean_system_update function START
 clean_system_update () {
+
+
+     if [ -z "$ALLOW_FULL_UPGRADE" ]; then
+     
+     echo "${yellow}Does the Operating System on this device update using the \"Rolling Release\" model (Kali, Manjaro, Ubuntu Rolling Rhino, Debian Unstable, etc), or the \"Long-Term Release\" model (Ubuntu, Raspberry Pi OS, Armbian Stable, Diet Pi, etc)?"
+     echo " "
+     echo "${red}(You can SEVERLY MESS UP a \"Rolling Release\" Operating System IF YOU DO NOT CHOOSE CORRECTLY HERE! In that case, you can SAFELY choose \"I don't know\".)${reset}"
+     echo " "
+     
+     echo "Enter the NUMBER next to your chosen option.${reset}"
+     
+     echo " "
+     
+          OPTIONS="rolling long_term i_dont_know"
+          
+          select opt in $OPTIONS; do
+                  if [ "$opt" = "long_term" ]; then
+                  ALLOW_FULL_UPGRADE="yes"
+                  echo " "
+                  echo "${green}Allowing system-wide updates before installs.${reset}"
+                  break
+                 else
+                  ALLOW_FULL_UPGRADE="no"
+                  echo " "
+                  echo "${green}Disabling system-wide updates before installs.${reset}"
+                  break
+                 fi
+          done
+            
+     echo " "
+     
+     fi
+
 
      if [ "$APT_CACHE_CLEARED" != "1" ]; then
 
@@ -342,7 +344,7 @@ clean_system_update () {
           echo " "
           
           #DO NOT RUN dist-upgrade, bad things can happen, lol
-          apt upgrade -y
+          sudo apt upgrade -y
           				
           sleep 2
           
