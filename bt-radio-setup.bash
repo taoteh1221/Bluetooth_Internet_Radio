@@ -284,6 +284,7 @@ clean_system_update () {
 
      if [ -z "$ALLOW_FULL_UPGRADE" ]; then
      
+     echo " "
      echo "${yellow}Does the Operating System on this device update using the \"Rolling Release\" model (Kali, Manjaro, Ubuntu Rolling Rhino, Debian Unstable, etc), or the \"Long-Term Release\" model (Ubuntu, Raspberry Pi OS, Armbian Stable, Diet Pi, etc)?"
      echo " "
      echo "${red}(You can SEVERLY MESS UP a \"Rolling Release\" Operating System IF YOU DO NOT CHOOSE CORRECTLY HERE! In that case, you can SAFELY choose \"I don't know\".)${reset}"
@@ -374,7 +375,7 @@ PYTHON_PATH=$(which python3)
 
 if [ -z "$PYTHON_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -391,7 +392,7 @@ XDGUSER_PATH=$(which xdg-user-dir)
 
 if [ -z "$XDGUSER_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -408,7 +409,7 @@ SYSLOG_PATH=$(which rsyslogd)
 
 if [ -z "$SYSLOG_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -425,7 +426,7 @@ GIT_PATH=$(which git)
 
 if [ -z "$GIT_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -442,7 +443,7 @@ CURL_PATH=$(which curl)
 
 if [ -z "$CURL_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -459,7 +460,7 @@ JQ_PATH=$(which jq)
 
 if [ -z "$JQ_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -476,7 +477,7 @@ WGET_PATH=$(which wget)
 
 if [ -z "$WGET_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -493,7 +494,7 @@ SED_PATH=$(which sed)
 
 if [ -z "$SED_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -510,7 +511,7 @@ LESS_PATH=$(which less)
 				
 if [ -z "$LESS_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -527,7 +528,7 @@ EXPECT_PATH=$(which expect)
 				
 if [ -z "$EXPECT_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -544,7 +545,7 @@ AVAHID_PATH=$(which avahi-daemon)
 
 if [ -z "$AVAHID_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -561,7 +562,7 @@ BC_PATH=$(which bc)
 
 if [ -z "$BC_PATH" ]; then
 
-# Clears / updates apt cache, then upgrades (if NOT a rolling release)
+# Clears / updates cache, then upgrades (if NOT a rolling release)
 clean_system_update
 
 echo " "
@@ -593,7 +594,7 @@ bt_autoconnect_install () {
     # Install bluetooth-autoconnect.py if needed (AND we are #NOT# running as sudo)
     if [ ! -f "$BT_AUTOCONNECT_PATH" ] && [ "$EUID" != 0 ]; then
 
-    # Clears / updates apt cache, then upgrades (if NOT a rolling release)
+    # Clears / updates cache, then upgrades (if NOT a rolling release)
     clean_system_update
     
     echo " "
@@ -928,7 +929,7 @@ select opt in $OPTIONS; do
         
         echo " "
 
-        # Clears / updates apt cache, then upgrades (if NOT a rolling release)
+        # Clears / updates cache, then upgrades (if NOT a rolling release)
         clean_system_update
         
         echo " "
@@ -992,7 +993,7 @@ select opt in $OPTIONS; do
 				fi
         
 
-        # Clears / updates apt cache, then upgrades (if NOT a rolling release)
+        # Clears / updates cache, then upgrades (if NOT a rolling release)
         clean_system_update
         				
         echo " "
@@ -1316,7 +1317,7 @@ select opt in $OPTIONS; do
         
         # https://github.com/coderholic/pyradio/blob/master/build.md
 
-        # Clears / updates apt cache, then upgrades (if NOT a rolling release)
+        # Clears / updates cache, then upgrades (if NOT a rolling release)
         clean_system_update
         
         echo " "
@@ -1409,7 +1410,7 @@ select opt in $OPTIONS; do
                 break
                elif [ "$opt" = "system_freezes" ]; then
 
-                # Clears / updates apt cache, then upgrades (if NOT a rolling release)
+                # Clears / updates cache, then upgrades (if NOT a rolling release)
                 clean_system_update
                 
                 sudo apt install mplayer -y
