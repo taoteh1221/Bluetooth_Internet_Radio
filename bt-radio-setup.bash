@@ -3,7 +3,7 @@
 COPYRIGHT_YEARS="2022-2023"
 
 # Version of this script
-APP_VERSION="1.07.0" # 2023/JANUARY/28TH
+APP_VERSION="1.08.0" # 2023/FEBUARY/18TH
 
 ########################################################################################################################
 ########################################################################################################################
@@ -1808,12 +1808,12 @@ select opt in $OPTIONS; do
         bluetoothctl power on
         echo " "
         
-        echo "${cyan}Scanning for device $BLU_MAC, ${red}please wait 60 seconds or longer${cyan}...${reset}"
+        echo "${cyan}Scanning for device $BLU_MAC, ${red}please wait up to a few minutes${cyan}...${reset}"
         echo " "
         
         
         expect -c "
-        set timeout 20
+        set timeout 100
         spawn bluetoothctl
         send -- \"scan on\r\"
         expect \"$BLU_MAC\"

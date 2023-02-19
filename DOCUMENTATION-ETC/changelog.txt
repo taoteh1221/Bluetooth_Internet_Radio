@@ -181,6 +181,16 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.08.0:
+
+-Increased timeout when connecting a new bluetooth device
+
+-Support for "Rolling Release" operating systems
+
+-------------------------------------------------------------------
+
+
 
 
 
