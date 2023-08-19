@@ -3,7 +3,7 @@
 COPYRIGHT_YEARS="2022-2023"
 
 # Version of this script
-APP_VERSION="1.08.0" # 2023/FEBUARY/18TH
+APP_VERSION="1.09.0" # 2023/AUGUST/18TH
 
 ########################################################################################################################
 ########################################################################################################################
@@ -1342,7 +1342,7 @@ select opt in $OPTIONS; do
         sleep 1
         
         # Install pyradio python3 dependencies
-        sudo apt install python3-setuptools python3-wheel python3-pip python3-requests python3-dnspython python3-psutil -y
+        sudo apt install python3-setuptools python3-wheel python3-pip python3-requests python3-dnspython python3-psutil python3-rich -y
         
         sleep 3
         
