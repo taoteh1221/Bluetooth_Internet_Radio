@@ -20,6 +20,12 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 ///////////////////////////////////////////////////////
 
 
+Looks like we have to switch to using the snap package manager for
+ubuntu in the install bash scripts FOR ALL MY APPS. Some pre-requisite
+libraries are no longer available using apt, and are only available as
+'snap install X'.
+
+
 CLEARLY LABLE ARCH LINUX SUPPORT AS A "WORK-IN-PROGRESS".
 
 
