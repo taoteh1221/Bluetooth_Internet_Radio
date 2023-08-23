@@ -3,7 +3,7 @@
 COPYRIGHT_YEARS="2022-2023"
 
 # Version of this script
-APP_VERSION="1.09.0" # 2023/AUGUST/18TH
+APP_VERSION="1.09.1" # 2023/AUGUST/23RD
 
 ########################################################################################################################
 ########################################################################################################################
@@ -697,7 +697,7 @@ CONNECT_STATUS=$(python3 $BT_AUTOCONNECT_PATH)
 
 if [ ! -f ~/radio ]; then 
 
-ln -s $SCRIPT_LOCATION ~/radio
+ln -s "$SCRIPT_LOCATION" ~/radio
 
 echo " "
 echo "${red}IMPORTANT INFORMATION:"
@@ -840,11 +840,11 @@ select opt in $OPTIONS; do
                     # Remove system link, to reset automatically after upgrade (in case script location changed)
                     rm ~/radio > /dev/null 2>&1
                     
-                    mv -v --force BT-TEMP.bash $SCRIPT_LOCATION
+                    mv -v --force BT-TEMP.bash "$SCRIPT_LOCATION"
                     
                     sleep 3
                 
-                    chmod +x $SCRIPT_LOCATION
+                    chmod +x "$SCRIPT_LOCATION"
                     				
                     sleep 1
                     				
