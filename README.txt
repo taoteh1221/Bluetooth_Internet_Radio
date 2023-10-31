@@ -58,7 +58,7 @@ Running normally (displays options to choose from):
 
 ~/radio
  
-Auto-selecting single / multi sub-option examples (MULTI SUB-OPTIONS #MUST# BE IN QUOTES!):
+Auto-selecting single / multi option examples (MULTI OPTIONS #MUST# BE IN QUOTES!):
  
 ~/radio "1 y"
 ~/radio "upgrade y"
