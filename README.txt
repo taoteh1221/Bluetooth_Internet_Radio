@@ -2,9 +2,7 @@
 ############################################################################################################################
 
 
-Bluetooth Internet Radio - Developed by Michael Kilday <mike@dragonfrugal.com>
-
-Copyright 2022-2023 GPLv3
+Copyright 2022-2024 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)
 
 
 Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi, connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
