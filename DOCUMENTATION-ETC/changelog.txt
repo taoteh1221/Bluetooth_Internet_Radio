@@ -74,7 +74,7 @@ Initial version
 
 -BUG FIX: Compatibility with upgrading the "Easter Egg" version of this app (bundled in crypto tracker / ticker apps)
 
--'pyradio_fix' option, to attempt fixes for common pyradio problems
+-'internet_player_fix' option, to attempt fixes for common pyradio problems
 
 -'other_apps' section now has option to auto-install additional apps
 
@@ -219,6 +219,14 @@ Initial version
 1.10.0:
 
 -Refactored bash scripts, for improved user experience
+
+-------------------------------------------------------------------
+
+
+-------------------------------------------------------------------
+1.11.0:
+
+-Added ability to also play LOCAL music files (in a directory on the local machine)
 
 -------------------------------------------------------------------
 

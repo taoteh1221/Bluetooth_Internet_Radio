@@ -5,7 +5,7 @@
 Copyright 2022-2024 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)
 
 
-Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi, connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
+Fully automated setup of bluetooth, internet radio player (PyRadio), local music files player (mplayer), on a headless RaspberryPi, connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
 
 Project Website: https://sourceforge.net/projects/bluetooth-internet-radio/
 
@@ -63,22 +63,26 @@ Auto-selecting single / multi option examples (MULTI OPTIONS #MUST# BE IN QUOTES
 (checks for / confirms script upgrade)
  
 ~/radio "7 1 b3"
-~/radio "play 1 b3"
-(plays pyradio default playlist 3rd station in background)
+~/radio "internet 1 b3"
+(plays default INTERNET playlist in background, 3rd station)
  
-~/radio 8
-~/radio stop
-(stops pyradio playback)
+~/radio "9 1 bs"
+~/radio "local 1 bs"
+(plays default LOCAL music folder [RECURSIVELY] in background, shuffling)
  
-~/radio "10 XX:XX:XX:XX:XX:XX"
+~/radio 10
+~/radio off
+(stops audio playback)
+ 
+~/radio "12 XX:XX:XX:XX:XX:XX"
 ~/radio "connect XX:XX:XX:XX:XX:XX"
 (connect bluetooth device by mac address)
  
-~/radio "11 XX:XX:XX:XX:XX:XX"
+~/radio "13 XX:XX:XX:XX:XX:XX"
 ~/radio "remove XX:XX:XX:XX:XX:XX"
 (remove bluetooth device by mac address)
  
-~/radio "12 3"
+~/radio "14 3"
 ~/radio "devices paired"
 (shows paired bluetooth devices)
 

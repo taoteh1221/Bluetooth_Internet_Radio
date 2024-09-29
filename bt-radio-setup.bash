@@ -4,7 +4,7 @@
 COPYRIGHT_YEARS="2022-2024"
 
 # Version of this script
-APP_VERSION="1.10.0" # 2024/MAY/5TH
+APP_VERSION="1.11.0" # 2024/SEPTEMBER/29TH
 
 
 ########################################################################################################################
@@ -14,7 +14,7 @@ APP_VERSION="1.10.0" # 2024/MAY/5TH
 
 # https://github.com/taoteh1221/Bluetooth_Internet_Radio
 
-# Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi,
+# Fully automated setup of bluetooth, internet radio player (PyRadio), local music files player (mplayer), on a headless RaspberryPi,
 # connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
 
 # To install automatically on Ubuntu / RaspberryPi OS / Armbian, copy => paste => run the command below in a
@@ -40,22 +40,26 @@ APP_VERSION="1.10.0" # 2024/MAY/5TH
 # (checks for / confirms script upgrade)
  
 # ~/radio "7 1 b3"
-# ~/radio "play 1 b3"
-# (plays pyradio default playlist 3rd station in background)
+# ~/radio "internet 1 b3"
+# (plays default INTERNET playlist in background, 3rd station)
  
-# ~/radio 8
-# ~/radio stop
-# (stops pyradio playback)
+# ~/radio "9 1 bs"
+# ~/radio "local 1 bs"
+# (plays default LOCAL music folder [RECURSIVELY] in background, shuffling)
  
-# ~/radio "10 XX:XX:XX:XX:XX:XX"
+# ~/radio 10
+# ~/radio off
+# (stops audio playback)
+ 
+# ~/radio "12 XX:XX:XX:XX:XX:XX"
 # ~/radio "connect XX:XX:XX:XX:XX:XX"
 # (connect bluetooth device by mac address)
  
-# ~/radio "11 XX:XX:XX:XX:XX:XX"
+# ~/radio "13 XX:XX:XX:XX:XX:XX"
 # ~/radio "remove XX:XX:XX:XX:XX:XX"
 # (remove bluetooth device by mac address)
  
-# ~/radio "12 3"
+# ~/radio "14 3"
 # ~/radio "devices paired"
 # (shows paired bluetooth devices)
 
@@ -79,31 +83,34 @@ convert="$1"
 # (helps avoid mis-converting PRIMARY options [if we add a lot in the future])
 
 # devices internal
-convert=$(echo "$convert" | sed -r "s/devices internal/12 1/g")
+convert=$(echo "$convert" | sed -r "s/devices internal/14 1/g")
 
 # devices available
-convert=$(echo "$convert" | sed -r "s/devices available/12 2/g")
+convert=$(echo "$convert" | sed -r "s/devices available/14 2/g")
 
 # devices paired
-convert=$(echo "$convert" | sed -r "s/devices paired/12 3/g")
+convert=$(echo "$convert" | sed -r "s/devices paired/14 3/g")
 
 # devices trusted
-convert=$(echo "$convert" | sed -r "s/devices trusted/12 4/g")
+convert=$(echo "$convert" | sed -r "s/devices trusted/14 4/g")
 
 # upgrade
 convert=$(echo "$convert" | sed -r "s/upgrade/1/g")
 
-# play
-convert=$(echo "$convert" | sed -r "s/play/7/g")
+# internet
+convert=$(echo "$convert" | sed -r "s/internet/7/g")
+
+# local
+convert=$(echo "$convert" | sed -r "s/local/9/g")
 
 # stop
-convert=$(echo "$convert" | sed -r "s/stop/8/g")
+convert=$(echo "$convert" | sed -r "s/off/10/g")
 
 # connect
-convert=$(echo "$convert" | sed -r "s/connect/10/g")
+convert=$(echo "$convert" | sed -r "s/connect/12/g")
 
 # remove
-convert=$(echo "$convert" | sed -r "s/remove/11/g")
+convert=$(echo "$convert" | sed -r "s/remove/13/g")
 
 
      if [ ! -f ~/radio ]; then
@@ -847,22 +854,26 @@ echo "${green}~/radio \"upgrade y\"${cyan}"
 echo "(checks for / confirms script upgrade)"
 echo " "
 echo "${green}~/radio \"7 1 b3\""
-echo "${green}~/radio \"play 1 b3\"${cyan}"
-echo "(plays pyradio default playlist 3rd station in background)"
+echo "${green}~/radio \"internet 1 b3\"${cyan}"
+echo "(plays default INTERNET playlist in background, 3rd station)"
 echo " "
-echo "${green}~/radio 8"
-echo "${green}~/radio stop${cyan}"
-echo "(stops pyradio playback)"
+echo "${green}~/radio \"9 1 bs\""
+echo "${green}~/radio \"local 1 bs\"${cyan}"
+echo "(plays default LOCAL music folder [RECURSIVELY] in background, shuffling)"
 echo " "
-echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\""
+echo "${green}~/radio 10"
+echo "${green}~/radio off${cyan}"
+echo "(stops audio playback)"
+echo " "
+echo "${green}~/radio \"12 XX:XX:XX:XX:XX:XX\""
 echo "${green}~/radio \"connect XX:XX:XX:XX:XX:XX\"${cyan}"
 echo "(connect bluetooth device by mac address)"
 echo " "
-echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\""
+echo "${green}~/radio \"13 XX:XX:XX:XX:XX:XX\""
 echo "${green}~/radio \"remove XX:XX:XX:XX:XX:XX\"${cyan}"
 echo "(remove bluetooth device by mac address)"
 echo " "
-echo "${green}~/radio \"12 3\""
+echo "${green}~/radio \"14 3\""
 echo "${green}~/radio \"devices paired\"${cyan}"
 echo "(shows paired bluetooth devices)"
 echo "${reset} "
@@ -878,7 +889,7 @@ echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status pyradio_install pyradio_fix pyradio_on pyradio_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
 
 
 # start options
@@ -1366,7 +1377,7 @@ select opt in $OPTIONS; do
             # If 'pulseaudio' was found, start it
             if [ -f "$PULSEAUDIO_PATH" ]; then
                     
-            echo "${yellow}PulseAudio status: ${red}(HOLD Ctrl+c KEYS DOWN TO EXIT)${yellow}:"
+            echo "${yellow}PulseAudio status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
             echo "${reset} "
             systemctl --user status pulseaudio.service
             exit
@@ -1384,7 +1395,7 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "pyradio_install" ]; then
+        elif [ "$opt" = "internet_player_install" ]; then
         
         
         ######################################
@@ -1482,7 +1493,7 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "pyradio_fix" ]; then
+        elif [ "$opt" = "internet_player_fix" ]; then
         
         
         ######################################
@@ -1556,7 +1567,7 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "pyradio_on" ]; then
+        elif [ "$opt" = "internet_player_on" ]; then
         
         
         ######################################
@@ -1709,7 +1720,7 @@ select opt in $OPTIONS; do
             
         
             echo "${yellow} "
-            echo "Enter b to run pyradio in the background, or s to show on-screen..." 
+            echo "Enter B to run pyradio in the background, or S to show on-screen..." 
             echo "(to include the playlist number, enter b[num] / s[num] instead, eg: b2)"
             echo "${reset} "
             
@@ -1762,12 +1773,303 @@ select opt in $OPTIONS; do
             fi
             
         
-        break        
+        break 
         
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "pyradio_off" ]; then
+        elif [ "$opt" = "local_player_install" ]; then
+        
+        
+        ######################################
+        
+        echo " "
+        
+            if [ "$EUID" == 0 ]; then 
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS."
+             echo " "
+             echo "(some components for mplayer are installed as a regular user)${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+
+        echo "${red} "
+        echo "NOTICE: YOUR COMPUTER WILL REBOOT AFTER CONFIGURATION OF THIS COMPONENT!"
+        echo " "
+        read -n1 -s -r -p $"Press Y to continue (or press N to exit)..." key
+        echo "${reset} "
+        
+            if [ "$key" = 'y' ] || [ "$key" = 'Y' ]; then
+            echo " "
+            echo "${green}Continuing...${reset}"
+            echo " "
+            else
+            echo " "
+            echo "${green}Exiting...${reset}"
+            echo " "
+            exit
+            fi
+        
+        echo " "
+        
+        ######################################
+
+        # Clears / updates cache, then upgrades (if NOT a rolling release)
+        clean_system_update
+        
+        echo " "
+        echo "${green}Installing mplayer and required components, please wait...${reset}"
+        echo " "
+        
+        sleep 1
+        
+        # Install screen
+        $PACKAGE_INSTALL screen -y
+        
+        sleep 1
+        
+        # mplayer
+        $PACKAGE_INSTALL mplayer -y
+        
+        sleep 3
+        
+        mkdir -p $HOME/Music/MPlayer
+        
+        echo " "
+        echo "${green}mplayer installation complete.${reset}"
+        echo " "
+		
+		echo " "
+		echo "${red}Rebooting your system, please wait, and log back in afterwards...${reset}"
+		echo " "
+		
+		sleep 5
+		
+		sudo reboot
+        
+        break 
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "local_player_on" ]; then
+        
+        
+        ######################################
+        
+        echo " "
+        
+            if [ "$EUID" == 0 ]; then 
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+        
+        # kill any background instances of mplayer
+        SCREENS_DETACHED=$(screen -ls | grep Detached | grep "mplayer")
+        if [ "$SCREENS_DETACHED" != "" ]; then
+        echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+        else
+        pkill -o mplayer > /dev/null 2>&1
+        fi
+        
+        bt_autoconnect_check > /dev/null 2>&1
+        
+        echo " "
+        echo "${yellow}Select 1 or 2 to choose whether to load a custom directory, or the default one.${reset}"
+        echo " "
+        
+        OPTIONS="default_directory custom_directory"
+        
+        select opt in $OPTIONS; do
+                if [ "$opt" = "custom_directory" ]; then
+        
+                echo " "
+                echo "${yellow}Enter the #FULL SYSTEM PATH# (example: start with /home/$TERMINAL_USERNAME/ for your home directory)"
+                echo "to your CUSTOM music directory, OR leave blank to use the default one.${reset}"
+                echo " "
+                
+                read CUSTOM_MUSIC_DIR
+                echo " "
+                                
+                	if [ -z "$CUSTOM_MUSIC_DIR" ]; then
+                 	MUSIC_DIR="$HOME/Music/MPlayer"
+                 	MUSIC_DIR_DESC="default"
+                    echo " "
+                 	echo "${green}Using default music directory...${reset}"
+                    echo " "
+                 	else
+                 	MUSIC_DIR="$CUSTOM_MUSIC_DIR"
+                 	MUSIC_DIR_DESC="custom"
+                    echo " "
+                    echo "${green}Using custom music directory from: $CUSTOM_MUSIC_DIR${reset}"
+                    echo " "
+                 	fi
+                
+                break
+               elif [ "$opt" = "default_directory" ]; then
+                MUSIC_DIR="$HOME/Music/MPlayer"
+                MUSIC_DIR_DESC="default"
+                echo " "
+                echo "${green}Using default music directory...${reset}"
+                echo " "
+                break
+               fi
+        done
+        
+        
+            # IF WE NEED TO CREATE THE MUSIC DIRECTORY
+            if [ ! -d /home/$TERMINAL_USERNAME/Music/MPlayer ]; then
+
+            echo "${red} "
+            echo "###########################################################################################"
+            echo " "
+            echo "We must create the mplayer MUSIC FOLDER: ~/Music/MPlayer (PUT ALL YOUR MUSIC FILES IN HERE AFTERWARDS)."
+            echo " "
+                
+            echo "###########################################################################################"
+            echo "${reset} "
+            
+            echo "${yellow} "
+            read -n1 -s -r -p $'Press Y to create the mplayer MUSIC FOLDER (or press N to cancel)...\n' keystroke
+            echo "${reset} "
+        
+                if [ "$keystroke" = 'y' ] || [ "$keystroke" = 'Y' ]; then
+            
+    		      echo " "
+    			 echo "${cyan}Initiating mplayer MUSIC FOLDER setup, please wait...${reset}"
+                
+                sleep 3
+    			
+    			 mkdir -p $HOME/Music/MPlayer
+            
+                else
+                echo "${green}mplayer MUSIC FOLDER setup has been cancelled.${reset}"
+                echo " "
+                fi
+                
+            
+            # OTHERWISE, LET USER CHOOSE WHICH WAY TO RUN mplayer
+            else
+                
+                
+                files_recursive () {
+                     
+                shopt -s nullglob dotglob
+                    
+                        for pathname in "$1"/*; do
+                        
+                            if [ -d "$pathname" ]; then
+                                files_recursive "$pathname"
+                            else
+                                case "$pathname" in
+                                    *.mp3|*.ogg|*.wav|*.flac|*.mp4)
+                                        printf '%s\n' "$pathname"
+                                esac
+                            fi
+
+                        done
+                        
+                }
+               
+               
+                if [ ! -f ${MUSIC_DIR}/playlist.dat ]; then
+                
+                echo "${green}No playlist found, creating one now at: ${MUSIC_DIR}/playlist.dat${reset}"
+                echo " "
+
+                MPLAYER_PLAYLIST=$(files_recursive "$MUSIC_DIR")
+                
+                echo -e "$MPLAYER_PLAYLIST" > ${MUSIC_DIR}/playlist.dat
+
+                sleep 3
+    
+                fi
+                
+                
+            echo "${yellow} "
+            echo "Enter B to run mplayer in the background, or S to show on-screen..." 
+            echo "(to SHUFFLE append S instead, eg: BS...append N for normal playback, eg: SN)"
+            echo "${reset} "
+            
+            read keystroke
+                
+            IS_SHUFFLED="${keystroke:1}"
+            
+                
+                # If shuffle param WAS NOT included 
+                if [ -z "$IS_SHUFFLED" ]; then
+                echo "${yellow} "
+                read -p 'Enter S for shuffle, or N for normal: ' IS_SHUFFLED
+                echo "${reset} "
+                fi
+            
+                
+                # If shuffle param STILL WAS NOT included, set to N
+                if [ -z "$IS_SHUFFLED" ]; then
+                IS_SHUFFLED="N"
+                fi
+                
+                
+                if [[ $IS_SHUFFLED == "s" ]] || [[ $IS_SHUFFLED == "S" ]]; then
+                MPLAYER_COMMAND="mplayer -shuffle"
+                SHUFF_DESC="Shuffling"
+                else
+                MPLAYER_COMMAND="mplayer"
+                SHUFF_DESC="Playing"
+                fi
+    
+    
+                if [[ ${keystroke:0:1} == "b" ]] || [[ ${keystroke:0:1} == "B" ]]; then
+                
+                echo " "
+                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR_DESC} music directory...${reset}"
+                echo " "
+                
+                # Export the vars to screen's bash session, OR IT WON'T RUN!
+                export MPLAYER_COMMAND=$MPLAYER_COMMAND
+                export MUSIC_DIR=$MUSIC_DIR
+                screen -dmS mplayer bash -c '${MPLAYER_COMMAND} -playlist ${MUSIC_DIR}/playlist.dat'
+            
+                elif [[ ${keystroke:0:1} == "s" ]] || [[ ${keystroke:0:1} == "S" ]]; then
+                
+                echo " "
+                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR_DESC} music directory...${reset}"
+                echo " "
+                echo "${red}WHEN YOU ARE DONE LISTENING: hold down the 2 keys Ctrl+C at the same time, until you exit this script.${reset}"
+                echo " "
+                
+                ${MPLAYER_COMMAND} -playlist ${MUSIC_DIR}/playlist.dat
+                
+                echo " "
+                echo "${cyan}Exited mplayer.${reset}"
+                echo " "
+            
+                else
+                
+                echo "${cyan}Opening mplayer cancelled.${reset}"
+                echo " "
+            
+                fi
+
+                
+            fi
+            
+        
+        break             
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "any_player_off" ]; then
         
         
         ######################################
@@ -1786,8 +2088,9 @@ select opt in $OPTIONS; do
        
        
         echo " "
-        echo "${green}Turning pyradio OFF...${reset}"
+        echo "${green}Turning audio player OFF...${reset}"
         echo " "
+
         
             # kill any background instances of pyradio
             SCREENS_DETACHED=$(screen -ls | grep Detached | grep "pyradio")
@@ -1796,10 +2099,18 @@ select opt in $OPTIONS; do
             else
             pkill -o pyradio > /dev/null 2>&1
             fi
+
+            
+            # kill any background instances of mplayer
+            SCREENS_DETACHED=$(screen -ls | grep Detached | grep "mplayer")
+            if [ "$SCREENS_DETACHED" != "" ]; then
+            echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+            else
+            pkill -o mplayer > /dev/null 2>&1
+            fi
+
         
         exit
-        
-        break    
         
         ##################################################################################################################
         ##################################################################################################################
@@ -1825,7 +2136,7 @@ select opt in $OPTIONS; do
             # If 'pulseaudio' was found, start it
             if [ -f "$PULSEAUDIO_PATH" ]; then
                     
-            echo "${yellow}bluetooth status: ${red}(HOLD Ctrl+c KEYS DOWN TO EXIT)${yellow}:"
+            echo "${yellow}bluetooth status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
             echo "${reset} "
             sudo systemctl status bluetooth.service
             exit
@@ -1866,7 +2177,7 @@ select opt in $OPTIONS; do
         echo " "
         echo "Put your bluetooth receiver in pairing mode, and get ready to write down what you see as it's mac address (format: XX:XX:XX:XX:XX:XX).${reset}"
         echo " "
-        echo "${red}WHEN YOU ARE DONE: hold down the 2 keys Ctrl+c at the same time, until you exit this script.${reset}"
+        echo "${red}WHEN YOU ARE DONE: hold down the 2 keys Ctrl+C at the same time, until you exit this script.${reset}"
         
         echo "${yellow} "
         read -n1 -s -r -p $'Press Y to run the bluetooth scan (or press N to cancel)...\n' keystroke
@@ -2236,7 +2547,7 @@ select opt in $OPTIONS; do
         
         ######################################
                     
-        echo "${yellow}bluetooth journal ${red}(HOLD Ctrl+c KEYS DOWN TO EXIT)${yellow}:"
+        echo "${yellow}bluetooth journal ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
         echo "${reset} "
         journalctl -u bluetooth.service -u pulseaudio.service -u btautoconnect.service --since today
         exit
@@ -2385,7 +2696,7 @@ select opt in $OPTIONS; do
         echo "https://github.com/taoteh1221/Bluetooth_Internet_Radio"
         echo " "
         
-        echo "Fully automated setup of bluetooth and an internet radio player (PyRadio), on a headless RaspberryPi,"
+        echo "Fully automated setup of bluetooth, internet radio player (PyRadio), local music files player (mplayer), on a headless RaspberryPi,"
         echo "connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run)."
         echo " "
         
@@ -2416,22 +2727,26 @@ select opt in $OPTIONS; do
         echo "(checks for / confirms script upgrade)"
         echo " "
         echo "${green}~/radio \"7 1 b3\""
-        echo "${green}~/radio \"play 1 b3\"${cyan}"
-        echo "(plays pyradio default playlist 3rd station in background)"
+        echo "${green}~/radio \"internet 1 b3\"${cyan}"
+        echo "(plays default INTERNET playlist in background, 3rd station)"
         echo " "
-        echo "${green}~/radio 8"
-        echo "${green}~/radio stop${cyan}"
-        echo "(stops pyradio playback)"
+        echo "${green}~/radio \"9 1 bs\""
+        echo "${green}~/radio \"local 1 bs\"${cyan}"
+        echo "(plays default LOCAL music folder [RECURSIVELY] in background, shuffling)"
         echo " "
-        echo "${green}~/radio \"10 XX:XX:XX:XX:XX:XX\""
+        echo "${green}~/radio 10"
+        echo "${green}~/radio off${cyan}"
+        echo "(stops audio playback)"
+        echo " "
+        echo "${green}~/radio \"12 XX:XX:XX:XX:XX:XX\""
         echo "${green}~/radio \"connect XX:XX:XX:XX:XX:XX\"${cyan}"
         echo "(connect bluetooth device by mac address)"
         echo " "
-        echo "${green}~/radio \"11 XX:XX:XX:XX:XX:XX\""
+        echo "${green}~/radio \"13 XX:XX:XX:XX:XX:XX\""
         echo "${green}~/radio \"remove XX:XX:XX:XX:XX:XX\"${cyan}"
         echo "(remove bluetooth device by mac address)"
         echo " "
-        echo "${green}~/radio \"12 3\""
+        echo "${green}~/radio \"14 3\""
         echo "${green}~/radio \"devices paired\"${cyan}"
         echo "(shows paired bluetooth devices)"
         echo "${reset} "
