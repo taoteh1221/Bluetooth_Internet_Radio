@@ -1583,14 +1583,25 @@ select opt in $OPTIONS; do
             fi
         
         ######################################
+
         
-        # kill any background instances of pyradio
-        SCREENS_DETACHED=$(screen -ls | grep Detached | grep "pyradio")
-        if [ "$SCREENS_DETACHED" != "" ]; then
-        echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
-        else
-        pkill -o pyradio > /dev/null 2>&1
-        fi
+            # kill any background instances of pyradio
+            SCREENS_DETACHED=$(screen -ls | grep Detached | grep "pyradio")
+            if [ "$SCREENS_DETACHED" != "" ]; then
+            echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+            else
+            pkill -o pyradio > /dev/null 2>&1
+            fi
+
+            
+            # kill any background instances of mplayer
+            SCREENS_DETACHED=$(screen -ls | grep Detached | grep "mplayer")
+            if [ "$SCREENS_DETACHED" != "" ]; then
+            echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+            else
+            pkill -o mplayer > /dev/null 2>&1
+            fi
+
         
         bt_autoconnect_check > /dev/null 2>&1
         
@@ -1872,14 +1883,25 @@ select opt in $OPTIONS; do
             fi
         
         ######################################
+
         
-        # kill any background instances of mplayer
-        SCREENS_DETACHED=$(screen -ls | grep Detached | grep "mplayer")
-        if [ "$SCREENS_DETACHED" != "" ]; then
-        echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
-        else
-        pkill -o mplayer > /dev/null 2>&1
-        fi
+            # kill any background instances of pyradio
+            SCREENS_DETACHED=$(screen -ls | grep Detached | grep "pyradio")
+            if [ "$SCREENS_DETACHED" != "" ]; then
+            echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+            else
+            pkill -o pyradio > /dev/null 2>&1
+            fi
+
+            
+            # kill any background instances of mplayer
+            SCREENS_DETACHED=$(screen -ls | grep Detached | grep "mplayer")
+            if [ "$SCREENS_DETACHED" != "" ]; then
+            echo $SCREENS_DETACHED | cut -d. -f1 | awk '{print $1}' | xargs kill
+            else
+            pkill -o mplayer > /dev/null 2>&1
+            fi
+
         
         bt_autoconnect_check > /dev/null 2>&1
         
