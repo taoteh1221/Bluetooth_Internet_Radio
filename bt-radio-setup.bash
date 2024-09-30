@@ -103,8 +103,11 @@ convert=$(echo "$convert" | sed -r "s/internet/7/g")
 # local
 convert=$(echo "$convert" | sed -r "s/local/9/g")
 
-# stop
+# off
 convert=$(echo "$convert" | sed -r "s/off/10/g")
+
+# stop (backwards compatibility)
+convert=$(echo "$convert" | sed -r "s/stop/10/g")
 
 # connect
 convert=$(echo "$convert" | sed -r "s/connect/12/g")
@@ -1637,26 +1640,29 @@ select opt in $OPTIONS; do
                 	if [ -z "$CUSTOM_STATIONS_FILE" ]; then
                  	LOAD_CUSTOM_STATIONS=""
                  	PLAYLIST_DESC="default"
-                    echo " "
-                 	echo "${green}Using default stations...${reset}"
-                    echo " "
                  	else
                  	LOAD_CUSTOM_STATIONS="-s $CUSTOM_STATIONS_FILE"
                  	PLAYLIST_DESC="custom"
-                    echo " "
-                    echo "${green}Using custom stations from: $CUSTOM_STATIONS_FILE${reset}"
-                    echo " "
                  	fi
                 
                 break
                elif [ "$opt" = "default_stations" ]; then
                 PLAYLIST_DESC="default"
-                echo " "
-                echo "${green}Using default stations...${reset}"
-                echo " "
                 break
                fi
         done
+        
+        
+            if [ -z "$LOAD_CUSTOM_STATIONS" ]; then
+            echo " "
+            echo "${green}Using default stations...${reset}"
+            echo " "
+            else
+            echo " "
+            echo "${green}Using custom stations from: $CUSTOM_STATIONS_FILE${reset}"
+            echo " "
+            fi
+            
         
         echo " "
         echo "${cyan}PRO TIPS:"
@@ -1787,7 +1793,7 @@ select opt in $OPTIONS; do
             
                 else
                 
-                echo "${cyan}Opening pyradio cancelled.${reset}"
+                echo "${cyan}Incorrect play mode does NOT exist (your input was: ${keystroke:0:1}), opening pyradio cancelled.${reset}"
                 echo " "
             
                 fi
@@ -1958,6 +1964,17 @@ select opt in $OPTIONS; do
                 break
                fi
         done
+        
+        
+            if [ -z "$MUSIC_DIR" ]; then
+
+            echo " "
+            echo "${green}Music directory was NOT chosen, exiting...${reset}"
+            echo " "
+            
+            exit
+            
+            fi
         
         
             # IF WE NEED TO CREATE THE MUSIC DIRECTORY
@@ -2260,19 +2277,21 @@ select opt in $OPTIONS; do
         echo " "
         
         echo " "
-        echo "${red}Making sure $BLU_MAC is not ALREADY registered as paired (STALE pairings can cause RE-pairing issues), please wait up to a few minutes...${reset}"
+        echo "${red}Making sure $BLU_MAC is not ALREADY registered as paired (STALE pairings can cause RE-pairing issues), please wait up to a few minutes for the removal check to complete (silently, in the background)...${reset}"
         echo " "
         
         sleep 5
         
-        ~/radio "remove $BLU_MAC"
+        # Hide remove logic output, to avoid confusion with the add logic run after
+        export APP_RECURSE=0 #RESET, TO ALLOW RE-RECURSION HERE
+        ~/radio "remove $BLU_MAC" > /dev/null 2>&1
         
-        sleep 5
+        sleep 10
         
         bluetoothctl power on
         
         echo " "
-        echo "${red}Scanning for $BLU_MAC, please wait up to a few minutes...${reset}"
+        echo "${red}Scanning for $BLU_MAC (to add / pair it), please wait up to a few minutes...${reset}"
         echo " "
         
         expect -c "
@@ -2334,7 +2353,7 @@ select opt in $OPTIONS; do
         bluetoothctl power on
         
         echo " "
-        echo "${red}Scanning for $BLU_MAC, please wait 60 seconds or longer...${reset}"
+        echo "${red}Scanning for $BLU_MAC (to remove / un-pair it), please wait 60 seconds or longer...${reset}"
         echo " "
         
         
