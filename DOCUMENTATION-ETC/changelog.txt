@@ -228,6 +228,10 @@ Initial version
 
 -Added ability to also play LOCAL music files (in a directory on the local machine)
 
+-Added logic to persist (save) customized alsamixer settings (even after reboot)
+
+-Increased reliability for bluetooth pairing routine
+
 -------------------------------------------------------------------
 
 

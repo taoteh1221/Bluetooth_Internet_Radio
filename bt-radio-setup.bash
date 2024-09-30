@@ -885,6 +885,18 @@ fi
 ###############################################################################################
 
 
+if [ -f ~/.config/radio.alsamixer.state ]; then
+
+echo " "
+echo "${cyan}Loading customized alsamixer settings from: ~/.config/radio.alsamixer.state ${reset}"
+echo " "
+
+# RELIABLY persist volume / other alsamixer setting changes
+# https://askubuntu.com/questions/50067/how-to-save-alsamixer-settings
+alsactl --file ~/.config/radio.alsamixer.state restore
+
+fi
+
 echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
@@ -2247,12 +2259,21 @@ select opt in $OPTIONS; do
         read -p "${yellow}Enter your bluetooth receiver mac address here (format: XX:XX:XX:XX:XX:XX):${reset} " BLU_MAC
         echo " "
         
+        echo " "
+        echo "${red}Making sure $BLU_MAC is not ALREADY registered as paired (STALE pairings can cause RE-pairing issues), please wait up to a few minutes...${reset}"
+        echo " "
+        
+        sleep 5
+        
+        ~/radio "remove $BLU_MAC"
+        
+        sleep 5
+        
         bluetoothctl power on
-        echo " "
         
-        echo "${cyan}Scanning for device $BLU_MAC, ${red}please wait up to a few minutes${cyan}...${reset}"
         echo " "
-        
+        echo "${red}Scanning for $BLU_MAC, please wait up to a few minutes...${reset}"
+        echo " "
         
         expect -c "
         set timeout 100
@@ -2311,9 +2332,9 @@ select opt in $OPTIONS; do
         echo " "
         
         bluetoothctl power on
-        echo " "
         
-        echo "${cyan}Scanning for device $BLU_MAC, ${red}please wait 60 seconds or longer${cyan}...${reset}"
+        echo " "
+        echo "${red}Scanning for $BLU_MAC, please wait 60 seconds or longer...${reset}"
         echo " "
         
         
@@ -2473,6 +2494,16 @@ select opt in $OPTIONS; do
        
        
         alsamixer
+        
+        echo " "
+        echo "${green}Saving customized alsamixer settings to: ~/.config/radio.alsamixer.state${reset}"
+        echo " "
+        
+        sleep 1
+        
+        # RELIABLY persist volume / other alsamixer setting changes
+        # https://askubuntu.com/questions/50067/how-to-save-alsamixer-settings
+        alsactl --file ~/.config/radio.alsamixer.state store
        
         echo " "
         echo "${cyan}Exiting volume control...${reset}"

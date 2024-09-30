@@ -20,16 +20,13 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 ///////////////////////////////////////////////////////
 
 
-Looks like we have to switch to using the snap package manager for
-ubuntu in the install bash scripts FOR ALL MY APPS. Some pre-requisite
-libraries are no longer available using apt ("Unable to locate package X"), and are only available as
-'snap install X'.
+Add ability to "rescan" local music directories (to re-create playlists, so any NEWLY added / removed music files are updated accordingly).
 
 
-CLEARLY LABLE ARCH LINUX SUPPORT AS A "WORK-IN-PROGRESS".
+CONVERT ANY REMAINING "WORK-IN-PROGRESS" ARCH LINUX SUPPORT, OVER TO FEDORA SUPPORT INSTEAD.
 
 
-Into the RASPBERRY-PI-USB-BOOT.txt file, add in the way to get unsupporteed devices to boot from a usb disk, with a fat32-formatted microsd only containing their bootcode.bin file.
+Into the RASPBERRY-PI-USB-BOOT.txt file, add in the way to get unsupported devices to boot from a usb disk, with a fat32-formatted microsd only containing their bootcode.bin file.
 
 
 Dietpi error when trying to run ANY 'systemctl' command with the --user flag (systemctl status --system WORKS, systemctl status --user DOES NOT WORK): 
