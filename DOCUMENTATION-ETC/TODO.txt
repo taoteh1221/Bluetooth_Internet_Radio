@@ -9,7 +9,7 @@ GENERAL NOTES SECTION
 ///////////////////////////////////////////////////////
 
 
-Always set bluefish to "4 spaces" as a tab indentation, and enabling indentation of selected text. INDENTING SPACING IN FILES #CHANGES AUTOMATICALLY# WHEN "BLUEFISH => PREFERENCES => INITIAL DOCUMENT SETTINGS => TAB WIDTH" IS CHANGED, SO BE CAREFUL WHEN FIXING!!
+Always set bluefish to "5 spaces" as a tab indentation, and enabling indentation of selected text. INDENTING SPACING IN FILES #CHANGES AUTOMATICALLY# WHEN "BLUEFISH => PREFERENCES => INITIAL DOCUMENT SETTINGS => TAB WIDTH" IS CHANGED, SO BE CAREFUL WHEN FIXING!!
 
 
 ALWAYS do everything in the optimizations / bugs / tests / ux / qa / other section of this list FIRST, before adding ANY new features (find every flaming turd before we start a dumpster fire).
@@ -20,7 +20,10 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 ///////////////////////////////////////////////////////
 
 
-Add ability to "rescan" local music directories (to re-create playlists, so any NEWLY added / removed music files are updated accordingly).
+Add a "rescan_music_library" option, that recreates the playlists, in case anything new has been added or removed.
+
+
+Re-add the old "play" command, for backwards compatibility.
 
 
 CONVERT ANY REMAINING "WORK-IN-PROGRESS" ARCH LINUX SUPPORT, OVER TO FEDORA SUPPORT INSTEAD.
