@@ -43,9 +43,9 @@ APP_VERSION="1.11.0" # 2024/SEPTEMBER/29TH
 # ~/radio "internet 1 b3"
 # (plays default INTERNET playlist in background, 3rd station)
  
-# ~/radio "9 1 bs"
-# ~/radio "local 1 bs"
-# (plays default LOCAL music folder [RECURSIVELY] in background, shuffling)
+# ~/radio "9 bsr"
+# ~/radio "local bsr"
+# (rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)
  
 # ~/radio 10
 # ~/radio off
@@ -484,7 +484,7 @@ fi
 
 
 # Make sure automatic suspend / sleep is disabled
-if [ -f "/etc/debian_version" ]; then
+if [ ! -f "${HOME}/.sleep_disabled.dat" ]; then
 
 echo "${red}We need to make sure your system will NOT AUTO SUSPEND / SLEEP, or your app server could stop running.${reset}"
 
@@ -498,31 +498,13 @@ echo "${reset} "
     echo "${cyan}Disabling auto suspend / sleep...${reset}"
     echo " "
     
-    sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target > /dev/null 2>&1
-	   
-    else
-
-    echo " "
-    echo "${green}Skipping...${reset}"
-    echo " "
+         if [ -f "/etc/debian_version" ]; then
+         sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target > /dev/null 2>&1
+         elif [ -f "/etc/redhat-release" ]; then
+         sudo -u gdm dbus-run-session gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0 > /dev/null 2>&1
+         fi
     
-    fi
-
-elif [ -f "/etc/redhat-release" ]; then
-
-echo "${red}We need to make sure your system will NOT AUTO SUSPEND / SLEEP, or your app server could stop running.${reset}"
-
-echo "${yellow} "
-read -n1 -s -r -p $"PRESS F to fix this (disables auto suspend / sleep), OR any other key to skip fixing..." key
-echo "${reset} "
-
-    if [ "$key" = 'f' ] || [ "$key" = 'F' ]; then
-
-    echo " "
-    echo "${cyan}Disabling auto suspend / sleep...${reset}"
-    echo " "
-    
-    sudo -u gdm dbus-run-session gsettings set org.gnome.settings-daemon.plugins.power sleep-inactive-ac-timeout 0 > /dev/null 2>&1
+    echo -e "ran" > ${HOME}/.sleep_disabled.dat
 	   
     else
 
@@ -927,9 +909,9 @@ echo "${green}~/radio \"7 1 b3\""
 echo "${green}~/radio \"internet 1 b3\"${cyan}"
 echo "(plays default INTERNET playlist in background, 3rd station)"
 echo " "
-echo "${green}~/radio \"9 1 bs\""
-echo "${green}~/radio \"local 1 bs\"${cyan}"
-echo "(plays default LOCAL music folder [RECURSIVELY] in background, shuffling)"
+echo "${green}~/radio \"9 bsr\""
+echo "${green}~/radio \"local bsr\"${cyan}"
+echo "(rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)"
 echo " "
 echo "${green}~/radio 10"
 echo "${green}~/radio off${cyan}"
@@ -1990,62 +1972,11 @@ select opt in $OPTIONS; do
         
         bt_autoconnect_check > /dev/null 2>&1
         
-        echo " "
-        echo "${yellow}Select 1 or 2 to choose whether to load a custom directory, or the default one.${reset}"
-        echo " "
-        
-        OPTIONS="default_directory custom_directory"
-        
-        select opt in $OPTIONS; do
-                if [ "$opt" = "custom_directory" ]; then
-        
-                echo " "
-                echo "${yellow}Enter the #FULL SYSTEM PATH# (example: start with /home/$TERMINAL_USERNAME/ for your home directory)"
-                echo "to your CUSTOM music directory, OR leave blank to use the default one.${reset}"
-                echo " "
-                
-                read CUSTOM_MUSIC_DIR
-                echo " "
-                                
-                	if [ -z "$CUSTOM_MUSIC_DIR" ]; then
-                 	MUSIC_DIR="$HOME/Music/MPlayer"
-                 	MUSIC_DIR_DESC="default"
-                    echo " "
-                 	echo "${green}Using default music directory...${reset}"
-                    echo " "
-                 	else
-                 	MUSIC_DIR="$CUSTOM_MUSIC_DIR"
-                 	MUSIC_DIR_DESC="custom"
-                    echo " "
-                    echo "${green}Using custom music directory from: $CUSTOM_MUSIC_DIR${reset}"
-                    echo " "
-                 	fi
-                
-                break
-               elif [ "$opt" = "default_directory" ]; then
-                MUSIC_DIR="$HOME/Music/MPlayer"
-                MUSIC_DIR_DESC="default"
-                echo " "
-                echo "${green}Using default music directory...${reset}"
-                echo " "
-                break
-               fi
-        done
-        
-        
-            if [ -z "$MUSIC_DIR" ]; then
-
-            echo " "
-            echo "${green}Music directory was NOT chosen, exiting...${reset}"
-            echo " "
-            
-            exit
-            
-            fi
-        
+        MUSIC_DIR="$HOME/Music/MPlayer"
+               
         
             # IF WE NEED TO CREATE THE MUSIC DIRECTORY
-            if [ ! -d /home/$TERMINAL_USERNAME/Music/MPlayer ]; then
+            if [ ! -d "$MUSIC_DIR" ]; then
 
             echo "${red} "
             echo "###########################################################################################"
@@ -2061,17 +1992,23 @@ select opt in $OPTIONS; do
             echo "${reset} "
         
                 if [ "$keystroke" = 'y' ] || [ "$keystroke" = 'Y' ]; then
-            
-    		      echo " "
-    			 echo "${cyan}Initiating mplayer MUSIC FOLDER setup, please wait...${reset}"
-                
-                sleep 3
     			
     			 mkdir -p $HOME/Music/MPlayer
+    			 
+    		      echo " "
+    			 echo "${cyan}mplayer MUSIC FOLDER created at: ~/Music/MPlayer"
+                echo " "
+    			 echo "Please re-run this script AFTER MOVING YOUR MUSIC TO THIS FOLDER, exiting...${reset}"
+                echo " "
+                
+                exit
             
                 else
-                echo "${green}mplayer MUSIC FOLDER setup has been cancelled.${reset}"
+
+                echo "${green}mplayer MUSIC FOLDER setup has been cancelled, exiting...${reset}"
                 echo " "
+                exit
+                
                 fi
                 
             
@@ -2079,14 +2016,14 @@ select opt in $OPTIONS; do
             else
                 
                 
-                files_recursive () {
+                recursive_media_scan () {
                      
                 shopt -s nullglob dotglob
                     
                         for pathname in "$1"/*; do
                         
                             if [ -d "$pathname" ]; then
-                                files_recursive "$pathname"
+                                recursive_media_scan "$pathname"
                             else
                                 case "$pathname" in
                                     *.mp3|*.ogg|*.wav|*.flac|*.mp4)
@@ -2098,40 +2035,58 @@ select opt in $OPTIONS; do
                         
                 }
                
-               
-                if [ ! -f ${MUSIC_DIR}/playlist.dat ]; then
-                
-                echo "${green}No playlist found, creating one now at: ${MUSIC_DIR}/playlist.dat${reset}"
-                echo " "
-
-                MPLAYER_PLAYLIST=$(files_recursive "$MUSIC_DIR")
-                
-                echo -e "$MPLAYER_PLAYLIST" > ${MUSIC_DIR}/playlist.dat
-
-                sleep 3
-    
-                fi
-                
                 
             echo "${yellow} "
             echo "Enter B to run mplayer in the background, or S to show on-screen..." 
-            echo "(to SHUFFLE append S instead, eg: BS...append N for normal playback, eg: SN)"
+            echo "(to SHUFFLE append S, eg: BS...append N or nothing to skip shuffling, eg: BN)"
+            echo "(to RESCAN to include NEW music files, append R [AFTER SHUFFLE VALUE], eg: BSR...append N or nothing to skip rescanning, eg: BSN)"
             echo "${reset} "
             
             read keystroke
                 
-            IS_SHUFFLED="${keystroke:1}"
-            
+            IS_RESCAN="${keystroke:2:1}"
                 
-                # If shuffle param WAS NOT included 
-                if [ -z "$IS_SHUFFLED" ]; then
-                echo "${yellow} "
-                read -p 'Enter S for shuffle, or N for normal: ' IS_SHUFFLED
-                echo "${reset} "
+                
+                # If rescan param WAS NOT included, set to N
+                if [ -z "$IS_RESCAN" ]; then
+                IS_RESCAN="N"
+                fi
+                
+                
+                if [[ $IS_RESCAN == "r" ]] || [[ $IS_RESCAN == "R" ]]; then
+                SCAN_DESC="RE-scanning"
+                else
+                SCAN_DESC="Scanning"
                 fi
             
+               
+                if [ ! -f ${MUSIC_DIR}/playlist.dat ] || [[ $IS_RESCAN == "r" ]] || [[ $IS_RESCAN == "R" ]]; then
+                     
+                rm ${MUSIC_DIR}/playlist.dat > /dev/null 2>&1
+                     
+                sleep 1
                 
-                # If shuffle param STILL WAS NOT included, set to N
+                echo "${green}${SCAN_DESC} media, and creating a NEW playlist at: ${MUSIC_DIR}/playlist.dat${reset}"
+                echo " "
+
+                MPLAYER_PLAYLIST=$(recursive_media_scan "$MUSIC_DIR")
+                
+                echo -e "$MPLAYER_PLAYLIST" > ${MUSIC_DIR}/playlist.dat
+
+                sleep 3
+                
+                else
+             
+                echo "${green}Playlist already exists, SKIPPING media SCAN.${reset}"
+                echo " "
+    
+                fi
+                
+            
+            IS_SHUFFLED="${keystroke:1:1}"
+            
+                
+                # If shuffle param WAS NOT included, set to N
                 if [ -z "$IS_SHUFFLED" ]; then
                 IS_SHUFFLED="N"
                 fi
@@ -2149,7 +2104,7 @@ select opt in $OPTIONS; do
                 if [[ ${keystroke:0:1} == "b" ]] || [[ ${keystroke:0:1} == "B" ]]; then
                 
                 echo " "
-                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR_DESC} music directory...${reset}"
+                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR} music directory...${reset}"
                 echo " "
                 
                 # Export the vars to screen's bash session, OR IT WON'T RUN!
@@ -2160,7 +2115,7 @@ select opt in $OPTIONS; do
                 elif [[ ${keystroke:0:1} == "s" ]] || [[ ${keystroke:0:1} == "S" ]]; then
                 
                 echo " "
-                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR_DESC} music directory...${reset}"
+                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR} music directory...${reset}"
                 echo " "
                 echo "${red}WHEN YOU ARE DONE LISTENING: hold down the 2 keys Ctrl+C at the same time, until you exit this script.${reset}"
                 echo " "
@@ -2869,9 +2824,9 @@ select opt in $OPTIONS; do
         echo "${green}~/radio \"internet 1 b3\"${cyan}"
         echo "(plays default INTERNET playlist in background, 3rd station)"
         echo " "
-        echo "${green}~/radio \"9 1 bs\""
-        echo "${green}~/radio \"local 1 bs\"${cyan}"
-        echo "(plays default LOCAL music folder [RECURSIVELY] in background, shuffling)"
+        echo "${green}~/radio \"9 bsr\""
+        echo "${green}~/radio \"local bsr\"${cyan}"
+        echo "(rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)"
         echo " "
         echo "${green}~/radio 10"
         echo "${green}~/radio off${cyan}"

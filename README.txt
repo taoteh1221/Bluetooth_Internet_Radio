@@ -75,9 +75,9 @@ Auto-selecting single / multi option examples (MULTI OPTIONS #MUST# BE IN QUOTES
 ~/radio "internet 1 b3"
 (plays default INTERNET playlist in background, 3rd station)
  
-~/radio "9 1 bs"
-~/radio "local 1 bs"
-(plays default LOCAL music folder [RECURSIVELY] in background, shuffling)
+~/radio "9 bsr"
+~/radio "local bsr"
+(rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)
  
 ~/radio 10
 ~/radio off
