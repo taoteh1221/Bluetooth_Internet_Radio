@@ -20,12 +20,6 @@ OPTIMIZATIONS / BUGS / TESTS / UX / QA / OTHER SECTION
 ///////////////////////////////////////////////////////
 
 
-Add a "rescan_music_library" option, that recreates the playlists, in case anything new has been added or removed.
-
-
-Re-add the old "play" command, for backwards compatibility.
-
-
 CONVERT ANY REMAINING "WORK-IN-PROGRESS" ARCH LINUX SUPPORT, OVER TO FEDORA SUPPORT INSTEAD.
 
 

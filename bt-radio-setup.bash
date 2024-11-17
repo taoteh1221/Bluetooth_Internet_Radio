@@ -100,6 +100,9 @@ convert=$(echo "$convert" | sed -r "s/upgrade/1/g")
 # internet
 convert=$(echo "$convert" | sed -r "s/internet/7/g")
 
+# play (backwards compatibility)
+convert=$(echo "$convert" | sed -r "s/play/7/g")
+
 # local
 convert=$(echo "$convert" | sed -r "s/local/9/g")
 
