@@ -2100,11 +2100,16 @@ select opt in $OPTIONS; do
                 SHUFF_DESC="Playing"
                 fi
     
+                
+            echo " "
+            echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR} music directory...${reset}"
+            echo " "
+                
     
                 if [[ ${keystroke:0:1} == "b" ]] || [[ ${keystroke:0:1} == "B" ]]; then
                 
                 echo " "
-                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR} music directory...${reset}"
+                echo "${green}BACKGROUND mode enabled...${reset}"
                 echo " "
                 
                 # Export the vars to screen's bash session, OR IT WON'T RUN!
@@ -2115,8 +2120,7 @@ select opt in $OPTIONS; do
                 elif [[ ${keystroke:0:1} == "s" ]] || [[ ${keystroke:0:1} == "S" ]]; then
                 
                 echo " "
-                echo "${green}${SHUFF_DESC} mplayer, in ${MUSIC_DIR} music directory...${reset}"
-                echo " "
+                echo "${green}SHOW mode enabled...${reset}"
                 echo "${red}WHEN YOU ARE DONE LISTENING: hold down the 2 keys Ctrl+C at the same time, until you exit this script.${reset}"
                 echo " "
                 
