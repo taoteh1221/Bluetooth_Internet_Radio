@@ -1728,7 +1728,7 @@ select opt in $OPTIONS; do
         echo " "
         echo "Full list of controls:"
         echo " "
-        echo "https://github.com/coderholic/pyradio/blob/master/README.md#controls"
+        echo "https://github.com/coderholic/pyradio/blob/master/docs/index.md#controls"
         echo " "
         
             # IF FIRST RUN, FORCE SHOWING PYRADIO ON SCREEN (SO USER CONFIG FILES GET CREATED IN HOME DIR)
