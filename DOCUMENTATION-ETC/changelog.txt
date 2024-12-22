@@ -235,6 +235,16 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.11.1:
+
+-BUG FIX: Removed auto-resetting pyradio's config on raspberry pi devices (sorry!)
+
+-Added ability to change the default player used in pyradio (during play commands, as an optional parameter)
+
+-------------------------------------------------------------------
+
+
 
 
 

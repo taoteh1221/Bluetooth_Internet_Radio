@@ -1,16 +1,16 @@
 #!/bin/bash
 
 
-COPYRIGHT_YEARS="2022-2024"
+COPYRIGHT_YEARS="2022-2025"
 
 # Version of this script
-APP_VERSION="1.11.0" # 2024/SEPTEMBER/29TH
+APP_VERSION="1.11.1" # 2024/DECEMBER/22ND
 
 
 ########################################################################################################################
 ########################################################################################################################
 
-# Copyright 2022-2024 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)
+# Copyright 2022-2025 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)
 
 # https://github.com/taoteh1221/Bluetooth_Internet_Radio
 
@@ -42,6 +42,8 @@ APP_VERSION="1.11.0" # 2024/SEPTEMBER/29TH
 # ~/radio "7 1 b3"
 # ~/radio "internet 1 b3"
 # (plays default INTERNET playlist in background, 3rd station)
+# ~/radio "internet 1 b3vlc"
+# (plays default INTERNET playlist in background, 3rd station, RESET default player to: vlc)
  
 # ~/radio "9 bsr"
 # ~/radio "local bsr"
@@ -911,6 +913,8 @@ echo " "
 echo "${green}~/radio \"7 1 b3\""
 echo "${green}~/radio \"internet 1 b3\"${cyan}"
 echo "(plays default INTERNET playlist in background, 3rd station)"
+echo "${green}~/radio \"internet 1 b3vlc\"${cyan}"
+echo "(plays default INTERNET playlist in background, 3rd station, RESET default player to: vlc)"
 echo " "
 echo "${green}~/radio \"9 bsr\""
 echo "${green}~/radio \"local bsr\"${cyan}"
@@ -1592,7 +1596,7 @@ select opt in $OPTIONS; do
                 sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config > /dev/null 2>&1
          
                 echo " "
-                echo "${green}Increased pyradio connection timout to 30 seconds.${reset}"
+                echo "${green}Increased pyradio connection timout config to 30 seconds.${reset}"
        
                 break
                elif [ "$opt" = "system_freezes" ]; then
@@ -1606,7 +1610,7 @@ select opt in $OPTIONS; do
                 sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config > /dev/null 2>&1
                 
                 echo " "
-                echo "${green}Set mplayer to default pyradio stream player.${reset}"
+                echo "${green}RESET pyradio stream players config (to: mplayer, vlc, mpv).${reset}"
                 
                 
                 break
@@ -1778,36 +1782,38 @@ select opt in $OPTIONS; do
             # We have already initialized pyradio and mpv beforehand,
             # so we can tweak a few config settings now before we start them up
             
-            
-                # Raspberry pi device compatibilities
-                if [ -f "/usr/bin/raspi-config" ]; then
-                
-                # mpv crashes a raspberry pi zero, mplayer does not (and vlc doesn't handle network disruption too well)
-                sed -i 's/player = .*/player = mplayer, vlc, mpv/g' ~/.config/pyradio/config > /dev/null 2>&1
-                
-                sleep 1
-
-                # mpv fails opening streams in pyradio on raspi devices, unless we set the connection timeout high
-                sed -i 's/connection_timeout = .*/connection_timeout = 30/g' ~/.config/pyradio/config > /dev/null 2>&1
-                
-                # mpv default volume is VERY low on raspi os, so we set it to 100 instead
-                sed -i 's/volume=.*/volume=100/g' ~/.config/mpv/mpv.conf > /dev/null 2>&1
-         
-                echo " "
-                echo "${red}Raspberry Pi compatibility settings for pyradio have been applied.${reset}"
-                echo " "
-            
-                fi
-            
-        
             echo "${yellow} "
             echo "Enter B to run pyradio in the background, or S to show on-screen..." 
             echo "(to include the playlist number, enter b[num] / s[num] instead, eg: b2)"
+            echo "(to reset default player, add player name, eg: b2mplayer)"
+            echo "(valid options are: mplayer, vlc, mpv)"
             echo "${reset} "
             
             read keystroke
                 
-            PLAY_NUM="${keystroke:1}"
+            SET_PLAYER="${keystroke:2:3}"
+                
+                
+                # If set player param WAS NOT correctly included (AND NOT BLANK), set it to defaults
+                if [[ $SET_PLAYER != "" ]] && [[ $SET_PLAYER != "mpl" ]] && [[ $SET_PLAYER != "vlc" ]] && [[ $SET_PLAYER != "mpv" ]]; then
+                SET_PLAYER=""
+                PLAYER_DESC=" (using player defaults [INVALID player value entered])"
+                elif [[ $SET_PLAYER == "mpl" ]]; then
+                SET_PLAYER="mplayer"
+                PLAYER_DESC=" (setting player to: ${SET_PLAYER})"
+                elif [[ $SET_PLAYER != "" ]]; then
+                PLAYER_DESC=" (setting player to: ${SET_PLAYER})"
+                fi
+            
+                
+                # If set player param was CORRECTLY included
+                if [[ $SET_PLAYER != "" ]]; then
+                sed -i "s/player = .*/player = ${SET_PLAYER}/g" ~/.config/pyradio/config > /dev/null 2>&1
+                sleep 1
+                fi
+                
+            
+            PLAY_NUM="${keystroke:1:1}"
             
                 
                 # If playlist number WAS NOT included 
@@ -1822,13 +1828,14 @@ select opt in $OPTIONS; do
                 if [ -z "$PLAY_NUM" ]; then
                 PLAY_NUM=1
                 fi
+                
+                
+                echo " "
+                echo "${green}Tuning pyradio to station ${PLAY_NUM}, in the ${PLAYLIST_DESC} playlist${PLAYER_DESC}...${reset}"
+                echo " "
     
     
                 if [[ ${keystroke:0:1} == "b" ]] || [[ ${keystroke:0:1} == "B" ]]; then
-                
-                echo " "
-                echo "${green}Tuning pyradio to station ${PLAY_NUM}, in the ${PLAYLIST_DESC} playlist...${reset}"
-                echo " "
                 
                 # Export the vars to screen's bash session, OR IT WON'T RUN!
                 export PLAY_NUM=$PLAY_NUM
@@ -2788,16 +2795,16 @@ select opt in $OPTIONS; do
         
         elif [ "$opt" = "about_this_app" ]; then
        
-        echo "${cyan} "
+        echo "${red} "
         echo "Copyright $COPYRIGHT_YEARS GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)"
         
-        echo " "
+        echo "${yellow} "
         echo "Version: ${APP_VERSION}"
         echo " "
         echo "https://github.com/taoteh1221/Bluetooth_Internet_Radio"
         echo " "
         
-        echo "Fully automated setup of bluetooth, internet radio player (PyRadio), local music files player (mplayer), on a headless RaspberryPi,"
+        echo "${cyan}Fully automated setup of bluetooth, internet radio player (PyRadio), local music files player (mplayer), on a headless RaspberryPi,"
         echo "connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run)."
         echo " "
         
@@ -2806,10 +2813,10 @@ select opt in $OPTIONS; do
         echo "USER THAT WILL RUN THE APP (user must have sudo privileges):"
         echo " "
         
-        echo "wget --no-cache -O bt-radio-setup.bash https://tinyurl.com/bt-radio-setup;chmod +x bt-radio-setup.bash;./bt-radio-setup.bash"
+        echo "${yellow}wget --no-cache -O bt-radio-setup.bash https://tinyurl.com/bt-radio-setup;chmod +x bt-radio-setup.bash;./bt-radio-setup.bash"
         echo " "
         
-        echo "AFTER installation, ~/radio is installed as a shortcut command pointing to this script,"
+        echo "${cyan}AFTER installation, ~/radio is installed as a shortcut command pointing to this script,"
         echo "and paired bluetooth reconnects (if disconnected) when you start a new terminal session."
         echo " "
         
@@ -2830,6 +2837,8 @@ select opt in $OPTIONS; do
         echo "${green}~/radio \"7 1 b3\""
         echo "${green}~/radio \"internet 1 b3\"${cyan}"
         echo "(plays default INTERNET playlist in background, 3rd station)"
+        echo "${green}~/radio \"internet 1 b3vlc\"${cyan}"
+        echo "(plays default INTERNET playlist in background, 3rd station, RESET default player to: vlc)"
         echo " "
         echo "${green}~/radio \"9 bsr\""
         echo "${green}~/radio \"local bsr\"${cyan}"

@@ -2,7 +2,7 @@
 ############################################################################################################################
 
 
-Copyright 2022-2024 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)
+Copyright 2022-2025 GPLv3, Bluetooth Internet Radio By Mike Kilday: Mike@DragonFrugal.com (leave this copyright / attribution intact in ALL forks / copies!)
 
 
 Fully automated setup of bluetooth, internet radio player (PyRadio), local music files player (mplayer), on a headless RaspberryPi, connecting to a stereo system's bluetooth receiver (bash script, chmod +x it to run).
@@ -74,6 +74,8 @@ Auto-selecting single / multi option examples (MULTI OPTIONS #MUST# BE IN QUOTES
 ~/radio "7 1 b3"
 ~/radio "internet 1 b3"
 (plays default INTERNET playlist in background, 3rd station)
+~/radio "internet 1 b3vlc"
+(plays default INTERNET playlist in background, 3rd station, RESET default player to: vlc)
  
 ~/radio "9 bsr"
 ~/radio "local bsr"
