@@ -4,7 +4,7 @@
 COPYRIGHT_YEARS="2022-2025"
 
 # Version of this script
-APP_VERSION="1.11.1" # 2024/DECEMBER/22ND
+APP_VERSION="1.12.0" # 2025/FEBRUARY/17TH
 
 
 ########################################################################################################################
@@ -178,6 +178,16 @@ fi
 export XAUTHORITY=~/.Xauthority 
 # Working directory
 export PWD=$PWD
+
+
+######################################
+
+# Are we running on an ARM-based CPU?
+if [ -f "/etc/debian_version" ]; then
+IS_ARM=$(dpkg --print-architecture | grep -i "arm")
+elif [ -f "/etc/redhat-release" ]; then
+IS_ARM=$(uname -r | grep -i "aarch64")
+fi
 
 
 ######################################
@@ -617,8 +627,14 @@ clean_system_update () {
      echo " "
      echo "${yellow}Does the Operating System on this device update using the \"Rolling Release\" model (Kali, Manjaro, Ubuntu Rolling Rhino, Debian Unstable, etc), or the \"Long-Term Release\" model (Debian, Ubuntu, Raspberry Pi OS, Armbian Stable, Diet Pi, etc)?"
      echo " "
-     echo "${red}(You can SEVERLY MESS UP a \"Rolling Release\" Operating System IF YOU DO NOT CHOOSE CORRECTLY HERE! In that case, you can SAFELY choose \"I don't know\".)${reset}"
+     echo "${red}(You can SEVERELY MESS UP a \"Rolling Release\" Operating System IF YOU DO NOT CHOOSE CORRECTLY HERE! In that case, you can SAFELY choose \"I don't know\".)${reset}"
      echo " "
+     
+     
+          if [ ! -f /usr/bin/raspi-config ] && [ "$IS_ARM" != "" ]; then
+          echo "${red}(Your ARM-based device MAY NOT BOOT IF YOU RUN SYSTEM UPGRADES [if you have NOT freezed kernel updating / rebooted FIRST]. To play it safe, you can just choose \"ARM Device\")${reset}"
+          echo " "
+          fi
      
      echo "Enter the NUMBER next to your chosen option.${reset}"
      
