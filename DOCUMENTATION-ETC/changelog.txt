@@ -265,6 +265,18 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.12.2:
+
+-FIX: Fixed pyradio installation prerequisite system libraries
+
+-Upgraded from depreciated commands for bluetoothctl (bluetooth CLI)
+
+-More reliable pairing / removing of bluetooth devices
+
+-------------------------------------------------------------------
+
+
 
 
 
