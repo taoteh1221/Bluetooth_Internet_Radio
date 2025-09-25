@@ -270,17 +270,11 @@ Initial version
 
 -FIX: Fixed pyradio installation prerequisite system libraries
 
+-Better MODERN (running wayland) Raspberry Pi OS user experience (pluseaudio-related menu items are DISABLED, as they are NOT needed)
+
 -Upgraded from depreciated commands for bluetoothctl (bluetooth CLI)
 
 -More reliable pairing / removing of bluetooth devices
-
--------------------------------------------------------------------
-
-
--------------------------------------------------------------------
-1.13.0:
-
--Better MODERN (running wayland) Raspberry Pi OS user experience (pluseaudio-related menu items are DISABLED, as they are NOT needed)
 
 -------------------------------------------------------------------
 
