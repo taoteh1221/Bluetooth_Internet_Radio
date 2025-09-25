@@ -277,6 +277,14 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.13.0:
+
+-Better MODERN (running wayland) Raspberry Pi OS user experience (pluseaudio-related menu items are DISABLED, as they are NOT needed)
+
+-------------------------------------------------------------------
+
+
 
 
 

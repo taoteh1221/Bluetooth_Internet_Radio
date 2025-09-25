@@ -4,7 +4,7 @@
 COPYRIGHT_YEARS="2022-2025"
 
 # Version of this script
-APP_VERSION="1.12.2" # 2025/FEBRUARY/26TH
+APP_VERSION="1.13.0" # 2025/SEPTEMBER/25TH
 
 
 ########################################################################################################################
@@ -360,6 +360,12 @@ elif [ "$RUNNING_X11" != "" ]; then
      LIGHTDM_DISPLAY=$(ls -al /etc/systemd/system/display-manager.service | grep "lightdm")
      fi
 
+fi
+
+
+# IF we are running a MODERN Raspberry Pi OS, FLAG as such (for interfacing UX)
+if [ -f /usr/bin/raspi-config ] && [ "$RUNNING_LABWC" != "" ]; then
+MODERN_RASPI_OS=1
 fi
 
 
@@ -1328,6 +1334,16 @@ select opt in $OPTIONS; do
         ######################################
         
         echo " "
+            
+            # IF we are running a MODERN Raspberry Pi OS, WE ARE ALREADY GOOD TO GO
+            if [ "$MODERN_RASPI_OS" != "" ]; then
+             echo "${red}YOU ARE RUNNING A MODERN VERSION OF RASPBERRY PI OS, YOU SHOULD NOT NEED PULSEAUDIO.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
         
             if [ "$EUID" -ne 0 ] || [ "$TERMINAL_USERNAME" == "root" ]; then 
              echo "${red}Please run #WITH# 'sudo' PERMISSIONS.${reset}"
@@ -1510,6 +1526,16 @@ select opt in $OPTIONS; do
         ######################################
         
         echo " "
+            
+            # IF we are running a MODERN Raspberry Pi OS, WE ARE ALREADY GOOD TO GO
+            if [ "$MODERN_RASPI_OS" != "" ]; then
+             echo "${red}YOU ARE RUNNING A MODERN VERSION OF RASPBERRY PI OS, YOU SHOULD NOT NEED PULSEAUDIO.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
         
             if [ "$EUID" == 0 ]; then 
              echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
@@ -1668,6 +1694,16 @@ select opt in $OPTIONS; do
         ######################################
         
         echo " "
+            
+            # IF we are running a MODERN Raspberry Pi OS, WE ARE ALREADY GOOD TO GO
+            if [ "$MODERN_RASPI_OS" != "" ]; then
+             echo "${red}YOU ARE RUNNING A MODERN VERSION OF RASPBERRY PI OS, YOU SHOULD NOT NEED PULSEAUDIO.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
         
             if [ "$EUID" == 0 ]; then 
              echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
