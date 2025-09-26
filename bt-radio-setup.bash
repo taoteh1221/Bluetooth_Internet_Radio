@@ -4,7 +4,7 @@
 COPYRIGHT_YEARS="2022-2025"
 
 # Version of this script
-APP_VERSION="1.12.2" # 2025/SEPTEMBER/25TH
+APP_VERSION="1.12.3" # 2025/SEPTEMBER/26TH
 
 
 ########################################################################################################################
@@ -331,6 +331,21 @@ fi
 ######################################
 
 
+# IF we are running pulseaudio already (either directly, OR via pipewire)
+
+IS_PULSEAUDIO=$(pgrep pulseaudio)
+
+IS_PIPEWIRE=$(pgrep pipewire)
+
+
+if [ "$IS_PULSEAUDIO" != "" ] || [ "$IS_PIPEWIRE" != "" ]; then
+PULSEAUDIO_ALREADY_RUNNING=1
+fi
+
+
+######################################
+
+
 # Find out what display manager is being used on the PHYSICAL display
 DISPLAY_SESSION=$(loginctl show-user "$TERMINAL_USERNAME" -p Display --value)
 DISPLAY_SESSION=$(echo "${DISPLAY_SESSION}" | xargs) # trim whitespace
@@ -360,12 +375,6 @@ elif [ "$RUNNING_X11" != "" ]; then
      LIGHTDM_DISPLAY=$(ls -al /etc/systemd/system/display-manager.service | grep "lightdm")
      fi
 
-fi
-
-
-# IF we are running a MODERN Raspberry Pi OS, FLAG as such (for interfacing UX)
-if [ -f /usr/bin/raspi-config ] && [ "$RUNNING_LABWC" != "" ]; then
-MODERN_RASPI_OS=1
 fi
 
 
@@ -597,7 +606,7 @@ app_path_result="${app_path_result#*$1:}"
 
 
 # Make sure automatic suspend / sleep is disabled
-if [ ! -f "${HOME}/.sleep_disabled.dat" ]; then
+if [ ! -f ~/.sleep_disabled.dat ]; then
 
 echo "${red}We need to make sure your system will NOT AUTO SUSPEND / SLEEP, or your app server could stop running.${reset}"
 
@@ -611,7 +620,7 @@ echo "${reset} "
     echo "${cyan}Disabling auto suspend / sleep...${reset}"
     echo " "
     
-    echo -e "ran" > ${HOME}/.sleep_disabled.dat
+    echo -e "ran" > ~/.sleep_disabled.dat
     
          if [ -f "/etc/debian_version" ]; then
          sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target > /dev/null 2>&1
@@ -988,9 +997,6 @@ WGET_PATH=$(get_app_path "wget")
 
 # Dependencies SPECIFICALLY for this bluetooth internet radio script...
 
-# pulseaudio's FULL PATH (to run checks later)
-PULSEAUDIO_PATH=$(get_app_path "pulseaudio")
-
 # python3's FULL PATH (we DONT want python [which is python2])
 PYTHON_PATH=$(get_app_path "python3")
 
@@ -1201,7 +1207,7 @@ echo " "
 echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install pulseaudio_fix pulseaudio_status internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+OPTIONS="upgrade_check pulseaudio_install pulseaudio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
 
 
 # start options
@@ -1335,9 +1341,9 @@ select opt in $OPTIONS; do
         
         echo " "
             
-            # IF we are running a MODERN Raspberry Pi OS, WE ARE ALREADY GOOD TO GO
-            if [ "$MODERN_RASPI_OS" != "" ]; then
-             echo "${red}YOU ARE RUNNING A MODERN VERSION OF RASPBERRY PI OS, YOU SHOULD NOT NEED PULSEAUDIO.${reset}"
+            # IF we are ALREADY running pulseaudio, WE ARE ALREADY GOOD TO GO
+            if [ "$PULSEAUDIO_ALREADY_RUNNING" == 1 ]; then
+             echo "${red}PULSEAUDIO IS ALREADY INSTALLED AND RUNNING.${reset}"
              echo " "
              echo "${cyan}Exiting...${reset}"
              echo " "
@@ -1520,22 +1526,49 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "pulseaudio_fix" ]; then
+        elif [ "$opt" = "pulseaudio_status" ]; then
         
         
         ######################################
         
         echo " "
             
-            # IF we are running a MODERN Raspberry Pi OS, WE ARE ALREADY GOOD TO GO
-            if [ "$MODERN_RASPI_OS" != "" ]; then
-             echo "${red}YOU ARE RUNNING A MODERN VERSION OF RASPBERRY PI OS, YOU SHOULD NOT NEED PULSEAUDIO.${reset}"
+            # IF we are ALREADY running pulseaudio, WE ARE ALREADY GOOD TO GO
+            if [ "$PULSEAUDIO_ALREADY_RUNNING" == 1 ]; then
+             echo "${red}PULSEAUDIO IS RUNNING.${reset}"
              echo " "
              echo "${cyan}Exiting...${reset}"
              echo " "
              exit
             fi
         
+        
+            if [ "$EUID" == 0 ]; then 
+             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+        
+        echo "${yellow}PulseAudio status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
+        echo "${reset} "
+        systemctl --user status pulseaudio.service
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "audio_fixes" ]; then
+        
+        
+        ######################################
+        
+        echo " "
         
             if [ "$EUID" == 0 ]; then 
              echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
@@ -1567,38 +1600,49 @@ select opt in $OPTIONS; do
         echo " "
         
         ######################################
+            
+    	   
+    	   # Stop / remove any existing bluetooth-autoconnect service
+    	   # (so we can trigger re-install afterwards, to get any updated configs in latest script)
+    	   # (also allows us to remove /lib/systemd/system/pulseaudio.service afterwards)
+    	   systemctl --user stop btautoconnect.service
+    		  
+    	   sleep 2
+    		
+    	   rm $HOME/.local/share/systemd/user/btautoconnect.service > /dev/null 2>&1
+    		
+    	   rm "$BT_AUTOCONNECT_PATH"
+    		
+    	   sleep 2
+    		
+    	   # reload services
+    	   systemctl --user daemon-reload
+    		
+    	   sleep 2
+    		
+        # Call bt_autoconnect_install function (this will re-initialize it, since we removed it)
+        bt_autoconnect_install
+
+        
+        ######################################
         
             
-            # If 'pulseaudio' was found, run the fix
-            if [ -f "$PULSEAUDIO_PATH" ]; then
+            # If a pulseaudio user config was found, run the fix attempts
+            if [ -d ~/.config/pulse ]; then
                     
             # Remove any user configs (sometimes pulseaudio bluetooth is fixed doing this)
             rm -r ~/.config/pulse.old > /dev/null 2>&1
+            sleep 1
             mv ~/.config/pulse/ ~/.config/pulse.old-$DATE > /dev/null 2>&1
-            
-    		# Stop / remove any existing bluetooth-autoconnect service
-    		# (so we can trigger re-install afterwards, to get any updated configs in latest script)
-    		# (also allows us to remove /lib/systemd/system/pulseaudio.service afterwards)
-    		systemctl --user stop btautoconnect.service
-    		
-    		sleep 5
-    		
-    		rm $HOME/.local/share/systemd/user/btautoconnect.service > /dev/null 2>&1
-    		
-    		rm "$BT_AUTOCONNECT_PATH"
-    		
-    		sleep 2
-    		
-    		# reload services
-    		systemctl --user daemon-reload
-    		
-    		sleep 2
-    		
-            # Call bt_autoconnect_install function (this will re-initialize it, since we removed it)
-            bt_autoconnect_install
                     
             echo "${green}Attempted USER FILES fixes completed (old configs at ~/.config/pulse.old-$DATE, btautoconnect.service re-initialized).${reset}"
             echo " "
+            
+            fi
+
+            
+            # Check /etc/pulse/default.pa (IF it exists)
+            if [ -f /etc/pulse/default.pa ]; then
 
             echo "${cyan}Now checking /etc/pulse/default.pa for missing bluetooth modules, please wait...${reset}"
             echo " "
@@ -1624,6 +1668,7 @@ select opt in $OPTIONS; do
                 NO_CONFIG_ISSUE=1
                 fi        
             
+            
                 if [ "$PULSE_BT_DISCOVER" == "" ]; then 
                 echo "${red}No bluetooth discover module loaded in pulseaudio, fixing, please wait...${reset}"
                 echo " "
@@ -1639,6 +1684,7 @@ select opt in $OPTIONS; do
                 else
                 NO_CONFIG_ISSUE=1
                 fi         
+            
             
                 if [ "$PULSE_BT_CONNECT" == "" ]; then 
                 echo "${red}No switch on connect module loaded in pulseaudio, fixing, please wait...${reset}"
@@ -1656,6 +1702,7 @@ select opt in $OPTIONS; do
                 NO_CONFIG_ISSUE=1
                 fi         
             
+            
                 if [ "$NO_CONFIG_ISSUE" == "1" ]; then 
                 echo "${green}No known pulseaudio DEFAULT configuration issues detected.${reset}"
                 echo " "
@@ -1664,16 +1711,16 @@ select opt in $OPTIONS; do
         
         
             echo " "
-            echo "${green}All pulseaudio attempted fixes complete.${reset}"
+            echo "${green}All pulseaudio / other attempted fixes complete.${reset}"
             echo " "   
 		
-    		echo " "
-    		echo "${red}Rebooting your system, please wait, and log back in afterwards...${reset}"
-    		echo " "
+    		  echo " "
+    		  echo "${red}Rebooting your system, please wait, and log back in afterwards...${reset}"
+    		  echo " "
     		
-    		sleep 5
+    		  sleep 5
     		
-    		sudo reboot
+    		  sudo reboot
             
             else
             
@@ -1685,54 +1732,6 @@ select opt in $OPTIONS; do
         
         break
         
-        ##################################################################################################################
-        ##################################################################################################################
-        
-        elif [ "$opt" = "pulseaudio_status" ]; then
-        
-        
-        ######################################
-        
-        echo " "
-            
-            # IF we are running a MODERN Raspberry Pi OS, WE ARE ALREADY GOOD TO GO
-            if [ "$MODERN_RASPI_OS" != "" ]; then
-             echo "${red}YOU ARE RUNNING A MODERN VERSION OF RASPBERRY PI OS, YOU SHOULD NOT NEED PULSEAUDIO.${reset}"
-             echo " "
-             echo "${cyan}Exiting...${reset}"
-             echo " "
-             exit
-            fi
-        
-        
-            if [ "$EUID" == 0 ]; then 
-             echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
-             echo " "
-             echo "${cyan}Exiting...${reset}"
-             echo " "
-             exit
-            fi
-        
-        ######################################
-        
-            
-            # If 'pulseaudio' was found, start it
-            if [ -f "$PULSEAUDIO_PATH" ]; then
-                    
-            echo "${yellow}PulseAudio status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
-            echo "${reset} "
-            systemctl --user status pulseaudio.service
-            exit
-            
-            else
-            
-            echo "PulseAudio not found, must be installed first, please re-run this script and choose that option."
-            echo " "
-                    
-            fi
-
-        
-        break
         
         ##################################################################################################################
         ##################################################################################################################
@@ -2494,22 +2493,10 @@ select opt in $OPTIONS; do
         
         ######################################
         
-            
-            # If 'pulseaudio' was found, start it
-            if [ -f "$PULSEAUDIO_PATH" ]; then
-                    
-            echo "${yellow}bluetooth status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
-            echo "${reset} "
-            sudo systemctl status bluetooth.service
-            exit
-            
-            else
-            
-            echo "PulseAudio not found, must be installed first, please re-run this script and choose that option."
-            echo " "
-                    
-            fi
-
+        echo "${yellow}bluetooth status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
+        echo "${reset} "
+        sudo systemctl status bluetooth.service
+        exit
         
         break
         
@@ -2903,21 +2890,9 @@ select opt in $OPTIONS; do
         
         ######################################
         
-            
-            # If 'pulseaudio' was found, start it
-            if [ -f "$PULSEAUDIO_PATH" ]; then
-                    
-            echo "${yellow}pulseaudio / bluetoothd logs:${reset}"
-            echo " "
-            less /var/log/syslog | grep "bluetoothd\|pulseaudio"
-            
-            else
-            
-            echo "pulseaudio not found, must be installed first, please re-run this script and choose that option."
-            echo " "
-                    
-            fi
-
+        echo "${yellow}pulseaudio / bluetoothd logs:${reset}"
+        echo " "
+        less /var/log/syslog | grep "bluetoothd\|pulseaudio"
         
         break
         
