@@ -1199,15 +1199,15 @@ echo " "
 
 # RELIABLY persist volume / other alsamixer setting changes
 # https://askubuntu.com/questions/50067/how-to-save-alsamixer-settings
-alsactl --file ~/.config/radio.alsamixer.state restore
+alsactl --file ~/.config/radio.alsamixer.state restore > /dev/null 2>&1
 
 fi
 
 echo " "
-echo "${yellow}Enter the NUMBER next to your chosen option:${reset}"
+echo "${red}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install pulseaudio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+OPTIONS="upgrade_check pulseaudio_install pulseaudio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
 
 
 # start options
@@ -1532,16 +1532,6 @@ select opt in $OPTIONS; do
         ######################################
         
         echo " "
-            
-            # IF we are ALREADY running pulseaudio, WE ARE ALREADY GOOD TO GO
-            if [ "$PULSEAUDIO_ALREADY_RUNNING" == 1 ]; then
-             echo "${red}PULSEAUDIO IS RUNNING.${reset}"
-             echo " "
-             echo "${cyan}Exiting...${reset}"
-             echo " "
-             exit
-            fi
-        
         
             if [ "$EUID" == 0 ]; then 
              echo "${red}Please run #WITHOUT# 'sudo' PERMISSIONS.${reset}"
@@ -1553,10 +1543,24 @@ select opt in $OPTIONS; do
         
         ######################################
         
-        echo "${yellow}PulseAudio status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
-        echo "${reset} "
-        systemctl --user status pulseaudio.service
-        exit
+            
+            # IF we are running pulseaudio through pipewire, OR directly,
+            # we want to show the status for the corresponding service
+            if [ "$IS_PIPEWIRE" != "" ]; then
+
+             echo "${red}PulseAudio status (on PipeWire):"
+             echo "${reset} "
+             systemctl --user status pipewire.service
+             exit
+            
+            else
+
+             echo "${red}PulseAudio status:"
+             echo "${reset} "
+             systemctl --user status pulseaudio.service
+             exit
+            
+            fi
         
         break
         
@@ -2831,10 +2835,44 @@ select opt in $OPTIONS; do
         
         # RELIABLY persist volume / other alsamixer setting changes
         # https://askubuntu.com/questions/50067/how-to-save-alsamixer-settings
-        alsactl --file ~/.config/radio.alsamixer.state store
+        alsactl --file ~/.config/radio.alsamixer.state store > /dev/null 2>&1
        
         echo " "
         echo "${cyan}Exiting volume control...${reset}"
+        echo " "
+        
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "install_easyeffects" ]; then
+        
+        
+        ######################################
+        
+        echo " "
+        
+            if [ "$EUID" -ne 0 ] || [ "$TERMINAL_USERNAME" == "root" ]; then 
+             echo "${red}Please run #WITH# 'sudo' PERMISSIONS.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+        
+        echo " "
+        echo "${cyan}Installing Easy Effects, please wait..."
+        echo " "
+        
+        sudo apt install easyeffects
+       
+        echo " "
+        echo "${red}TO USE EASY EFFECTS EQ / VOLUME LEVELING / ETC, YOU NEED TO LOGIN ON A DESKTOP INTERFACE, OPEN EASY EFFECTS FROM THE APP MENU, AND GO TO 'EFFECTS -> ADD EFFECT'${reset}"
         echo " "
         
         exit

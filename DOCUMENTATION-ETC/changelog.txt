@@ -284,7 +284,9 @@ Initial version
 
 -FIX: Fixed pluseaudio detection logic, to cover any linux distribution reliably
 
--Refactoring
+-Added Easy Effects installation option
+
+-Refactoring / UX
 
 -------------------------------------------------------------------
 
