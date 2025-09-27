@@ -284,6 +284,8 @@ Initial version
 
 -FIX: Fixed pluseaudio detection logic, to cover any linux distribution reliably
 
+-PipeWire support for bluetooth autoconnect service / system log checking
+
 -Added Easy Effects installation option
 
 -Refactoring / UX

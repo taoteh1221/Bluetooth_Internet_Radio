@@ -333,12 +333,12 @@ fi
 
 # IF we are running pulseaudio already (either directly, OR via pipewire)
 
-IS_PULSEAUDIO=$(pgrep pulseaudio)
+RUNNING_PULSEAUDIO=$(pgrep pulseaudio)
 
-IS_PIPEWIRE=$(pgrep pipewire)
+RUNNING_PIPEWIRE=$(pgrep pipewire)
 
 
-if [ "$IS_PULSEAUDIO" != "" ] || [ "$IS_PIPEWIRE" != "" ]; then
+if [ "$RUNNING_PULSEAUDIO" != "" ] || [ "$RUNNING_PIPEWIRE" != "" ]; then
 PULSEAUDIO_ALREADY_RUNNING=1
 fi
 
@@ -1056,21 +1056,29 @@ bt_autoconnect_install () {
         echo " "
 
 
+               if [ "$RUNNING_PIPEWIRE" != "" ]; then
+               AUDIO_SERVICE_NAME="pipewire"
+               else
+               AUDIO_SERVICE_NAME="pulseaudio"
+               fi
+               
+               
 # Don't nest / indent, or it could malform the settings            
 read -r -d '' BT_AUTOCONNECT_STARTUP <<- EOF
 \r
 [Unit]
 Description=Bluetooth autoconnect
-After=pulseaudio.service
+After=${AUDIO_SERVICE_NAME}.service
 \r
 [Service]
 Type=simple
 \r
 ExecStart=python3 "$BT_AUTOCONNECT_PATH"
 [Install]
-WantedBy=pulseaudio.service
+WantedBy=${AUDIO_SERVICE_NAME}.service
 \r
 EOF
+
 
         # Setup service to run at login
         # https://superuser.com/questions/1037466/how-to-start-a-systemd-service-after-user-login-and-stop-it-before-user-logout
@@ -1546,7 +1554,7 @@ select opt in $OPTIONS; do
             
             # IF we are running pulseaudio through pipewire, OR directly,
             # we want to show the status for the corresponding service
-            if [ "$IS_PIPEWIRE" != "" ]; then
+            if [ "$RUNNING_PIPEWIRE" != "" ]; then
 
              echo "${red}PulseAudio status (on PipeWire):"
              echo "${reset} "
@@ -1614,6 +1622,8 @@ select opt in $OPTIONS; do
     	   sleep 2
     		
     	   rm $HOME/.local/share/systemd/user/btautoconnect.service > /dev/null 2>&1
+    		
+    	   sleep 2
     		
     	   rm "$BT_AUTOCONNECT_PATH"
     		
@@ -2928,9 +2938,9 @@ select opt in $OPTIONS; do
         
         ######################################
         
-        echo "${yellow}pulseaudio / bluetoothd logs:${reset}"
+        echo "${yellow}pipewire / pulseaudio / bluetoothd in syslog:${reset}"
         echo " "
-        less /var/log/syslog | grep "bluetoothd\|pulseaudio"
+        less /var/log/syslog | grep "bluetoothd\|pipewire\|pulseaudio"
         
         break
         
@@ -2954,9 +2964,9 @@ select opt in $OPTIONS; do
         
         ######################################
                     
-        echo "${yellow}bluetooth journal ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
+        echo "${yellow}bluetooth / pipewire / pulseaudio journal logs ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
         echo "${reset} "
-        journalctl -u bluetooth.service -u pulseaudio.service -u btautoconnect.service --since today
+        journalctl -u bluetooth.service -u pipewire.service -u pulseaudio.service -u btautoconnect.service --since today
         exit
         
         break
