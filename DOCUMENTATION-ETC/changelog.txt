@@ -284,9 +284,21 @@ Initial version
 
 -FIX: Fixed pluseaudio detection logic, to cover any linux distribution reliably
 
--PipeWire support for bluetooth autoconnect service / system log checking
+-PipeWire detection added (an alternative to pulseaudio)
 
 -Added Easy Effects installation option
+
+-Refactoring / UX
+
+-------------------------------------------------------------------
+
+
+-------------------------------------------------------------------
+1.12.4:
+
+-FIX: GRAPHICAL-based binaries (pyradio, alsamixer) now run properly, when they are launched by including additional parameters with the ~/radio command
+
+-Better cross-distro reliability (display detection, system var setup, exporting for parameter-based recursion, is now run before all logic)
 
 -Refactoring / UX
 

@@ -81,6 +81,10 @@ Auto-selecting single / multi option examples (MULTI OPTIONS #MUST# BE IN QUOTES
 ~/radio "local bsr"
 (rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)
  
+~/radio 17
+~/radio volume
+(adjust the system audio volume)
+ 
 ~/radio 10
 ~/radio off
 (stops audio playback)

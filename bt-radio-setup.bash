@@ -4,7 +4,7 @@
 COPYRIGHT_YEARS="2022-2025"
 
 # Version of this script
-APP_VERSION="1.12.3" # 2025/SEPTEMBER/26TH
+APP_VERSION="1.12.4" # 2025/SEPTEMBER/28TH
 
 
 ########################################################################################################################
@@ -49,6 +49,10 @@ APP_VERSION="1.12.3" # 2025/SEPTEMBER/26TH
 # ~/radio "local bsr"
 # (rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)
  
+# ~/radio 17
+# ~/radio volume
+# (adjust the system audio volume)
+ 
 # ~/radio 10
 # ~/radio off
 # (stops audio playback)
@@ -67,6 +71,83 @@ APP_VERSION="1.12.3" # 2025/SEPTEMBER/26TH
 
 ########################################################################################################################
 ########################################################################################################################
+
+
+# var setup, and export (for any recursion)
+
+
+# Authentication of X sessions
+export XAUTHORITY=~/.Xauthority 
+
+
+# EXPLICITLY set any dietpi paths 
+# Export too, in case we are calling another bash instance in this script
+if [ -f /boot/dietpi/.version ]; then
+PATH=/boot/dietpi:$PATH
+export PATH=$PATH
+fi
+				
+
+# EXPLICITLY set any ~/.local/bin paths
+# Export too, in case we are calling another bash instance in this script
+if [ -d ~/.local/bin ]; then
+PATH=~/.local/bin:$PATH
+export PATH=$PATH
+fi
+				
+
+# EXPLICITLY set any /usr/sbin path
+# Export too, in case we are calling another bash instance in this script
+if [ -d /usr/sbin ]; then
+PATH=/usr/sbin:$PATH
+export PATH=$PATH
+fi
+
+
+# In case we are recursing back into this script (for filtering params etc),
+# flag export of a few more basic sys vars if present
+
+# Authentication of X sessions
+export XAUTHORITY=~/.Xauthority 
+# Working directory
+export PWD=$PWD
+
+
+#FIND_DISPLAY=$(cat -e "/proc/$$/environ" | sed 's/\^@/\n/g' | grep DISPLAY | sed 's/.*=\(.*\).*/\1/')
+
+
+# If DISPLAY parameter wasn't set, try systemd environment check
+#if [ -z "$FIND_DISPLAY" ]; then
+#FIND_DISPLAY=$(systemctl --user show-environment | grep DISPLAY | sed 's/.*=\(.*\).*/\1/')
+#fi
+
+
+# If DISPLAY parameter STILL wasn't set, use :0 (DEFAULT for 1st display)
+if [ -z "$FIND_DISPLAY" ]; then
+FIND_DISPLAY=":0"
+fi
+
+
+DISPLAY=$FIND_DISPLAY
+
+export DISPLAY=$FIND_DISPLAY
+
+
+# AFTER setting DISPLAY
+if [ ! -f ~/.Xresources ] && [ "$USER" != "root" ]; then
+touch ~/.Xresources
+chown ${USER}:${USER} ~/.Xresources # play it safe
+sleep 1
+xrdb -merge ~/.Xresources
+sleep 1
+fi
+
+
+# X resources
+export XRESOURCES=~/.Xresources 
+
+
+######################################
 
 
 # If parameters are added via command line
@@ -108,6 +189,9 @@ convert=$(echo "$convert" | sed -r "s/internet/7/g")
 # local
 convert=$(echo "$convert" | sed -r "s/local/9/g")
 
+# volume
+convert=$(echo "$convert" | sed -r "s/volume/17/g")
+
 # off
 convert=$(echo "$convert" | sed -r "s/off/10/g")
 
@@ -146,42 +230,6 @@ echo " "
 echo "Initializing, please wait..."
 echo " "
 
-
-######################################
-
-
-# EXPLICITLY set any dietpi paths 
-# Export too, in case we are calling another bash instance in this script
-if [ -f /boot/dietpi/.version ]; then
-PATH=/boot/dietpi:$PATH
-export PATH=$PATH
-fi
-				
-
-# EXPLICITLY set any ~/.local/bin paths
-# Export too, in case we are calling another bash instance in this script
-if [ -d ~/.local/bin ]; then
-PATH=~/.local/bin:$PATH
-export PATH=$PATH
-fi
-				
-
-# EXPLICITLY set any /usr/sbin path
-# Export too, in case we are calling another bash instance in this script
-if [ -d /usr/sbin ]; then
-PATH=/usr/sbin:$PATH
-export PATH=$PATH
-fi
-
-
-# In case we are recursing back into this script (for filtering params etc),
-# flag export of a few more basic sys vars if present
-
-# Authentication of X sessions
-export XAUTHORITY=~/.Xauthority 
-# Working directory
-export PWD=$PWD
-				
 
 ######################################
 
@@ -382,6 +430,9 @@ elif [ "$RUNNING_X11" != "" ]; then
 fi
 
 
+######################################
+
+
 if [ -f "/etc/debian_version" ]; then
 
 echo "${green}Your system has been detected as Debian-based, which is compatible with this automated script."
@@ -427,16 +478,43 @@ fi
 ######################################
 
 
-# Ubuntu uses snaps for very basic libraries these days, so we need to configure for possible snap installs
-if [ "$IS_UBUNTU" != "" ]; then
+# Graphical-based apps must be redirected to the tty, to work
+# correctly *IN A SUBSHELL* (this ALSO works fine NOT in a subshell too).
+launch_graphical_safe() {
 
-sudo apt install snapd -y
+     if [ ! -z "$1" ]; then
 
-sleep 3
-          
-UBUNTU_SNAP_INSTALL="sudo snap install"
+         output=$(
+         $1 < /dev/tty > /dev/tty
+         )
+     
+     fi
 
-fi
+}
+
+
+######################################
+
+
+# Scan media directories recursively
+recursive_media_scan() {
+                     
+shopt -s nullglob dotglob
+                    
+      for pathname in "$1"/*; do
+                        
+            if [ -d "$pathname" ]; then
+            recursive_media_scan "$pathname"
+            else
+                  case "$pathname" in
+                  *.mp3|*.ogg|*.wav|*.flac|*.mp4)
+                  printf '%s\n' "$pathname"
+                  esac
+            fi
+
+      done
+                        
+}
 
 
 ######################################
@@ -960,6 +1038,23 @@ clean_system_update () {
 ######################################
 
 
+# Ubuntu uses snaps for very basic libraries these days, so we need to configure for possible snap installs
+if [ "$IS_UBUNTU" != "" ]; then
+
+     if [ ! -f ~/.ubuntu_check.dat ]; then
+     sudo apt install snapd -y
+     echo -e "ran" > ~/.ubuntu_check.dat
+     sleep 2
+     fi
+          
+UBUNTU_SNAP_INSTALL="sudo snap install"
+
+fi
+
+
+######################################
+
+
 # Get PRIMARY dependency lib's paths (for bash scripting commands...auto-install is attempted, if not found on system)
 # (our usual standard library prerequisites [ordered alphabetically], for 99% of advanced bash scripting needs)
 
@@ -1178,6 +1273,10 @@ echo " "
 echo "${green}~/radio \"9 bsr\""
 echo "${green}~/radio \"local bsr\"${cyan}"
 echo "(rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)"
+echo " "
+echo "${green}~/radio 17"
+echo "${green}~/radio volume${cyan}"
+echo "(adjust the system audio volume)"
 echo " "
 echo "${green}~/radio 10"
 echo "${green}~/radio off${cyan}"
@@ -2154,8 +2253,8 @@ select opt in $OPTIONS; do
                 screen -dmS pyradio bash -c 'pyradio --play ${PLAY_NUM} ${LOAD_CUSTOM_STATIONS}'
             
                 elif [[ ${keystroke:0:1} == "s" ]] || [[ ${keystroke:0:1} == "S" ]]; then
-                
-                pyradio --play $PLAY_NUM $LOAD_CUSTOM_STATIONS
+                          
+                launch_graphical_safe "pyradio --play $PLAY_NUM $LOAD_CUSTOM_STATIONS"
                 
                 echo " "
                 echo "${cyan}Exited pyradio.${reset}"
@@ -2335,28 +2434,7 @@ select opt in $OPTIONS; do
             
             # OTHERWISE, LET USER CHOOSE WHICH WAY TO RUN mplayer
             else
-                
-                
-                recursive_media_scan () {
-                     
-                shopt -s nullglob dotglob
-                    
-                        for pathname in "$1"/*; do
-                        
-                            if [ -d "$pathname" ]; then
-                                recursive_media_scan "$pathname"
-                            else
-                                case "$pathname" in
-                                    *.mp3|*.ogg|*.wav|*.flac|*.mp4)
-                                        printf '%s\n' "$pathname"
-                                esac
-                            fi
-
-                        done
-                        
-                }
-               
-                
+            
             echo "${yellow} "
             echo "Enter B to run mplayer in the background, or S to show on-screen..." 
             echo "(to SHUFFLE append S, eg: BS...append N or nothing to skip shuffling, eg: BN)"
@@ -2856,25 +2934,25 @@ select opt in $OPTIONS; do
             fi
         
         ######################################
-       
-       
-        alsamixer
         
-        echo " "
-        echo "${green}Saving customized alsamixer settings to: ~/.config/radio.alsamixer.state${reset}"
-        echo " "
-        
+
+        launch_graphical_safe "alsamixer"
+
         sleep 1
-        
+
+        echo " "
+        echo "${green}Saving customized alsamixer settings to: ~/.config/radio.alsamixer.state...${reset}"
+        echo " "
+             
         # RELIABLY persist volume / other alsamixer setting changes
         # https://askubuntu.com/questions/50067/how-to-save-alsamixer-settings
         alsactl --file ~/.config/radio.alsamixer.state store > /dev/null 2>&1
-       
+            
         echo " "
         echo "${cyan}Exiting volume control...${reset}"
         echo " "
-        
-        exit
+             
+        exit     
         
         break
         
@@ -3175,6 +3253,10 @@ select opt in $OPTIONS; do
         echo "${green}~/radio \"9 bsr\""
         echo "${green}~/radio \"local bsr\"${cyan}"
         echo "(rescans music files / plays LOCAL music folder ~/Music/MPlayer [RECURSIVELY] in background, shuffling)"
+        echo " "
+        echo "${green}~/radio 17"
+        echo "${green}~/radio volume${cyan}"
+        echo "(adjust the system audio volume)"
         echo " "
         echo "${green}~/radio 10"
         echo "${green}~/radio off${cyan}"
