@@ -298,7 +298,7 @@ Initial version
 
 -FIX: GRAPHICAL-based binaries (pyradio, alsamixer) now run properly, when they are launched by including additional parameters with the ~/radio command
 
--Better cross-distro reliability (display detection, system var setup, exporting for parameter-based recursion, is now run before all logic)
+-Better cross-distro reliability (system var / setup exporting for parameter-based recursion, is now run before all logic)
 
 -Refactoring / UX
 

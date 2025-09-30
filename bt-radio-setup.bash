@@ -76,10 +76,6 @@ APP_VERSION="1.12.4" # 2025/SEPTEMBER/28TH
 # var setup, and export (for any recursion)
 
 
-# Authentication of X sessions
-export XAUTHORITY=~/.Xauthority 
-
-
 # EXPLICITLY set any dietpi paths 
 # Export too, in case we are calling another bash instance in this script
 if [ -f /boot/dietpi/.version ]; then
@@ -109,42 +105,9 @@ fi
 
 # Authentication of X sessions
 export XAUTHORITY=~/.Xauthority 
+
 # Working directory
 export PWD=$PWD
-
-
-#FIND_DISPLAY=$(cat -e "/proc/$$/environ" | sed 's/\^@/\n/g' | grep DISPLAY | sed 's/.*=\(.*\).*/\1/')
-
-
-# If DISPLAY parameter wasn't set, try systemd environment check
-#if [ -z "$FIND_DISPLAY" ]; then
-#FIND_DISPLAY=$(systemctl --user show-environment | grep DISPLAY | sed 's/.*=\(.*\).*/\1/')
-#fi
-
-
-# If DISPLAY parameter STILL wasn't set, use :0 (DEFAULT for 1st display)
-if [ -z "$FIND_DISPLAY" ]; then
-FIND_DISPLAY=":0"
-fi
-
-
-DISPLAY=$FIND_DISPLAY
-
-export DISPLAY=$FIND_DISPLAY
-
-
-# AFTER setting DISPLAY
-if [ ! -f ~/.Xresources ] && [ "$USER" != "root" ]; then
-touch ~/.Xresources
-chown ${USER}:${USER} ~/.Xresources # play it safe
-sleep 1
-xrdb -merge ~/.Xresources
-sleep 1
-fi
-
-
-# X resources
-export XRESOURCES=~/.Xresources 
 
 
 ######################################
@@ -802,7 +765,7 @@ echo "${reset} "
 
     if [ "$key" = 'f' ] || [ "$key" = 'F' ]; then
 
-    sudo armbian-config
+    launch_graphical_safe "sudo armbian-config"
     
     sleep 1
 
@@ -1318,7 +1281,16 @@ echo " "
 echo "${red}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
+
+if [ -f /usr/bin/raspi-config ]; then
+
+OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app raspi_config"
+
+else
+
 OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+
+fi
 
 
 # start options
@@ -1537,7 +1509,7 @@ select opt in $OPTIONS; do
     				echo " "
     				echo "${cyan}Initiating dietpi-config, please wait...${reset}"
                     sleep 3
-    				dietpi-config
+    				launch_graphical_safe "dietpi-config"
                 
                     else
                     
@@ -3274,6 +3246,21 @@ select opt in $OPTIONS; do
         echo "${green}~/radio \"devices paired\"${cyan}"
         echo "(shows paired bluetooth devices)"
         echo "${reset} "
+        echo " "
+        
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "raspi_config" ] && [ -f /usr/bin/raspi-config ]; then
+        
+        launch_graphical_safe "sudo raspi-config"
+       
+        echo " "
+        echo "${green}Exiting raspi-config...${reset}"
         echo " "
         
         exit
