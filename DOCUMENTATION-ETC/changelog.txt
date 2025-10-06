@@ -300,6 +300,10 @@ Initial version
 
 -Better cross-distro reliability (system var / setup exporting for parameter-based recursion, is now run before all logic)
 
+-Added detected config apps, as run options: raspi-config, dietpi-config, armbian-config
+
+-Added RyhthmBox installation option
+
 -Refactoring / UX
 
 -------------------------------------------------------------------

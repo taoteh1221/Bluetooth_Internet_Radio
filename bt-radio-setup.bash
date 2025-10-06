@@ -1281,15 +1281,17 @@ echo " "
 echo "${red}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
+OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects install_rhythmbox troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+
 
 if [ -f /usr/bin/raspi-config ]; then
-
-OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app raspi_config"
-
+OPTIONS="$OPTIONS raspi_config"
+elif [ -f /boot/dietpi/.version ]; then
+OPTIONS="$OPTIONS dietpi_config"
+elif [ -f "/usr/bin/armbian-config" ]; then
+OPTIONS="$OPTIONS armbian_config"
 else
-
-OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
-
+OPTIONS="$OPTIONS"
 fi
 
 
@@ -2965,6 +2967,40 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
+        elif [ "$opt" = "install_rhythmbox" ]; then
+        
+        
+        ######################################
+        
+        echo " "
+        
+            if [ "$EUID" -ne 0 ] || [ "$TERMINAL_USERNAME" == "root" ]; then 
+             echo "${red}Please run #WITH# 'sudo' PERMISSIONS.${reset}"
+             echo " "
+             echo "${cyan}Exiting...${reset}"
+             echo " "
+             exit
+            fi
+        
+        ######################################
+        
+        echo " "
+        echo "${cyan}Installing RhythmBox, please wait..."
+        echo " "
+        
+        sudo apt install rhythmbox
+       
+        echo " "
+        echo "${red}TO USE RHYTHMBOX, YOU NEED TO LOGIN ON A DESKTOP INTERFACE, AND OPEN IT FROM THE APP MENU.${reset}"
+        echo " "
+        
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
         elif [ "$opt" = "troubleshoot" ]; then
         
         
@@ -3255,12 +3291,42 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "raspi_config" ] && [ -f /usr/bin/raspi-config ]; then
+        elif [ "$opt" = "raspi_config" ]; then
         
         launch_graphical_safe "sudo raspi-config"
        
         echo " "
         echo "${green}Exiting raspi-config...${reset}"
+        echo " "
+        
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "dietpi_config" ]; then
+        
+        launch_graphical_safe "dietpi-config"
+       
+        echo " "
+        echo "${green}Exiting dietpi-config...${reset}"
+        echo " "
+        
+        exit
+        
+        break
+        
+        ##################################################################################################################
+        ##################################################################################################################
+        
+        elif [ "$opt" = "armbian_config" ]; then
+        
+        launch_graphical_safe "sudo armbian-config"
+       
+        echo " "
+        echo "${green}Exiting armbian-config...${reset}"
         echo " "
         
         exit
