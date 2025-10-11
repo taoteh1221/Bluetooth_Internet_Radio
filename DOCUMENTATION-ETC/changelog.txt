@@ -309,7 +309,16 @@ Initial version
 -------------------------------------------------------------------
 
 
+-------------------------------------------------------------------
+1.12.5:
 
+-FIX: Fixed edge-case on some systems, where graphical CLI apps did not run properly, when NOT recursing / re-entering the script (to parse added CLI parameters)
+
+-FIX: Miscellaneous fixes
+
+-Refactoring / UX
+
+-------------------------------------------------------------------
 
 
 

@@ -4,7 +4,7 @@
 COPYRIGHT_YEARS="2022-2025"
 
 # Version of this script
-APP_VERSION="1.12.4" # 2025/SEPTEMBER/28TH
+APP_VERSION="1.12.5" # 2025/OCTOBER/10TH
 
 
 ########################################################################################################################
@@ -75,19 +75,25 @@ APP_VERSION="1.12.4" # 2025/SEPTEMBER/28TH
 
 # var setup, and export (for any recursion)
 
+# Working directory
+export PWD=$PWD
+
+# Terminal
+export TERM=$TERM
+
+
+# EXPLICITLY set any ~/.local/bin paths
+# Export too, in case we are calling another bash instance in this script
+if [ -d ~/.local/bin ] && [ "$USER" != "root" ]; then
+PATH=~/.local/bin:$PATH
+export PATH=$PATH
+fi
+
 
 # EXPLICITLY set any dietpi paths 
 # Export too, in case we are calling another bash instance in this script
 if [ -f /boot/dietpi/.version ]; then
 PATH=/boot/dietpi:$PATH
-export PATH=$PATH
-fi
-				
-
-# EXPLICITLY set any ~/.local/bin paths
-# Export too, in case we are calling another bash instance in this script
-if [ -d ~/.local/bin ]; then
-PATH=~/.local/bin:$PATH
 export PATH=$PATH
 fi
 				
@@ -100,23 +106,13 @@ export PATH=$PATH
 fi
 
 
-# In case we are recursing back into this script (for filtering params etc),
-# flag export of a few more basic sys vars if present
-
-# Authentication of X sessions
-export XAUTHORITY=~/.Xauthority 
-
-# Working directory
-export PWD=$PWD
-
-
 ######################################
 
 
 # If parameters are added via command line
 # (CLEANEST WAY TO RUN PARAMETER INPUT #TO AUTO-SELECT MULTIPLE CONSECUTIVE OPTION MENUS#)
 # (WE CAN PASS THEM #IN QUOTES# AS: command "option1 sub-option2 sub-sub-option3")
-if [ "$1" != "" ] && [ "$APP_RECURSE" != "1" ]; then
+if [ "$1" != "" ] && [ "$APP_RECURSE" != "1" ] && [ "$USER" != "root" ]; then
 
 # Flag recursion and export it
 APP_RECURSE=1
@@ -178,6 +174,14 @@ convert=$(echo "$convert" | sed -r "s/remove/13/g")
      exit
      fi
 
+
+elif [ "$1" != "" ] && [ "$USER" == "root" ]; then
+
+echo " "
+echo "Running as sudo does NOT support CLI parameters, instead just run as: sudo ~/radio"
+echo " "
+
+exit
 
 fi
 
@@ -441,15 +445,25 @@ fi
 ######################################
 
 
-# Graphical-based apps must be redirected to the tty, to work
-# correctly *IN A SUBSHELL* (this ALSO works fine NOT in a subshell too).
+# Graphical-based apps must be redirected to the tty,
+# to work correctly *IN A SUBSHELL*
 launch_graphical_safe() {
 
      if [ ! -z "$1" ]; then
+         
+         # IF we are recursing back into the script,
+         # run the command in a graphics compatible mode
+         if [ ! -z "$APP_RECURSE" ]; then
 
-         output=$(
-         $1 < /dev/tty > /dev/tty
-         )
+              output=$(
+              $1 < /dev/tty > /dev/tty
+              )
+         
+         # Otherwise, we NEED to just run as a plain command
+         # (or it runs badly on some systems!) 
+         else
+         $1
+         fi
      
      fi
 
@@ -505,12 +519,8 @@ app_path_result="${app_path_result#*$1:}"
      PATH_CHECK_REENTRY="" # Reset reentry flag
      
      echo "${red} " > /dev/tty
-     echo "System path for '$1' NOT FOUND, even AFTER package installation attempts, giving up." > /dev/tty
+     echo "System path for '$1' NOT FOUND." > /dev/tty
      echo " " > /dev/tty
-
-     echo "*PLEASE* REPORT THIS ISSUE HERE, *IF THIS SCRIPT OR THE INSTALLED APP FAILS TO RUN PROPERLY FROM THIS POINT ONWARD*:" > /dev/tty
-     echo " " > /dev/tty
-     echo "$ISSUES_URL" > /dev/tty
      echo "${reset} " > /dev/tty
      
      echo "${yellow} " > /dev/tty
@@ -603,34 +613,41 @@ app_path_result="${app_path_result#*$1:}"
           fi
           
           
-          # Terminal alert for good UX...
+          # IF package name is different on this system...
           if [ "$1" != "$SYS_PACK" ]; then
+          
           echo " " > /dev/tty
           echo "${yellow}'$1' is found WITHIN '$SYS_PACK', changing package request accordingly...${reset}" > /dev/tty
           echo " " > /dev/tty
+          
+          SET_PACKAGE_NAME="$SYS_PACK"
+          
+          else          
+          SET_PACKAGE_NAME="$1"
           fi
 
 
      echo " " > /dev/tty
-     echo "${cyan}Installing required component '$SYS_PACK', please wait...${reset}" > /dev/tty
+     echo "${cyan}Installing required component '$SET_PACKAGE_NAME', please wait...${reset}" > /dev/tty
      echo " " > /dev/tty
      
      sleep 3
                
-     $PACKAGE_INSTALL $SYS_PACK -y > /dev/tty
+     $PACKAGE_INSTALL $SET_PACKAGE_NAME -y > /dev/tty
      
      
           # If UBUNTU (*NOT* any other OS) snap was detected on the system, try a snap install too
           # (as they moved some libs over to snap / snap-only? now)
-          if [ "$IS_UBUNTU" != "" ] && [ $SYS_PACK != "snapd" ]; then
+          # (only if we are NOT installing snap itself)
+          if [ "$IS_UBUNTU" != "" ] && [ $SET_PACKAGE_NAME != "snapd" ]; then
           
           echo " " > /dev/tty
-          echo "${yellow}CHECKING FOR UBUNTU SNAP PACKAGE '$SYS_PACK', please wait...${reset}" > /dev/tty
+          echo "${yellow}CHECKING FOR UBUNTU SNAP PACKAGE '$SET_PACKAGE_NAME', please wait...${reset}" > /dev/tty
           echo " " > /dev/tty
           
           sleep 3
           
-          $UBUNTU_SNAP_INSTALL $SYS_PACK > /dev/tty
+          $UBUNTU_SNAP_INSTALL $SET_PACKAGE_NAME > /dev/tty
           
           fi
      
@@ -639,7 +656,7 @@ app_path_result="${app_path_result#*$1:}"
      
      PATH_CHECK_REENTRY=1 # Set reentry flag, right before reentry
      
-     echo $(get_app_path "$1")
+     echo $(get_app_path "$SET_PACKAGE_NAME")
            
      fi
 
@@ -651,7 +668,7 @@ app_path_result="${app_path_result#*$1:}"
 
 
 # Make sure automatic suspend / sleep is disabled
-if [ ! -f ~/.sleep_disabled.dat ]; then
+if [ ! -f ~/.sleep_disabled.dat ] && [ "$USER" != "root" ]; then
 
 echo "${red}We need to make sure your system will NOT AUTO SUSPEND / SLEEP, or your app server could stop running.${reset}"
 
@@ -690,7 +707,7 @@ fi
 # Do we have kernel updates disabled?
 
 # ON ARM REDHAT-BASED SYSTEMS
-if [ -f "/etc/redhat-release" ] && [ ! -f "${HOME}/.redhat_kernel_alert.dat" ]; then
+if [ -f "/etc/redhat-release" ] && [ ! -f "${HOME}/.redhat_kernel_alert.dat" ] && [ "$USER" != "root" ]; then
 
 # Are we auto-selecting the NEWEST kernel, to boot by default in grub?
 KERNEL_BOOTED_UPDATES=$(sudo sed -n '/UPDATEDEFAULT=yes/p' /etc/sysconfig/kernel)
@@ -749,7 +766,7 @@ echo -e "ran" > ${HOME}/.redhat_kernel_alert.dat
 
 
 # Armbian freeze kernel updates
-elif [ -f "/usr/bin/armbian-config" ] && [ ! -f "${HOME}/.armbian_kernel_alert.dat" ]; then
+elif [ -f "/usr/bin/armbian-config" ] && [ ! -f "${HOME}/.armbian_kernel_alert.dat" ] && [ "$USER" != "root" ]; then
 echo "${red}YOU MAY NEED TO *DISABLE* KERNEL UPDATES ON YOUR ARMBIAN DEVICE (IF YOU HAVE NOT ALREADY), SO YOUR DEVICE ALWAYS BOOTS UP PROPERLY."
 echo " "
 echo "${green}Run this command, and then choose 'System > Updates > Disable Armbian firmware upgrades':"
@@ -770,7 +787,7 @@ echo "${reset} "
     sleep 1
 
     echo " "
-    echo "${cyan}Resuming auto-installer..."
+    echo "${cyan}Exiting armbian-config..."
     echo " "
     echo "${red}DON'T FORGET TO REBOOT BEFORE ALLOWING ANY SYSTEM UPGRADES!${reset}"
     echo " "
@@ -1195,7 +1212,7 @@ CONNECT_STATUS=$(python3 "$BT_AUTOCONNECT_PATH")
 }
 
 
-if [ ! -f ~/radio ]; then 
+if [ ! -f ~/radio ] && [ "$USER" != "root" ]; then 
 
 ln -s "$SCRIPT_LOCATION" ~/radio
 
@@ -1281,7 +1298,7 @@ echo " "
 echo "${red}Enter the NUMBER next to your chosen option:${reset}"
 echo " "
 
-OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_status sound_test volume_adjust install_easyeffects install_rhythmbox troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
+OPTIONS="upgrade_check pulseaudio_install audio_status audio_fixes internet_player_install internet_player_fix internet_player_on local_player_install local_player_on any_player_off bluetooth_scan bluetooth_connect bluetooth_remove bluetooth_devices bluetooth_restart sound_test volume_adjust install_easyeffects install_rhythmbox troubleshoot syslog_logs journal_logs restart_computer exit_app other_apps about_this_app"
 
 
 if [ -f /usr/bin/raspi-config ]; then
@@ -1512,6 +1529,12 @@ select opt in $OPTIONS; do
     				echo "${cyan}Initiating dietpi-config, please wait...${reset}"
                     sleep 3
     				launch_graphical_safe "dietpi-config"
+    
+                    sleep 1
+               
+                    echo " "
+                    echo "${cyan}Exiting dietpi-config..."
+                    echo "${reset} "
                 
                     else
                     
@@ -2565,7 +2588,7 @@ select opt in $OPTIONS; do
         ##################################################################################################################
         ##################################################################################################################
         
-        elif [ "$opt" = "bluetooth_status" ]; then
+        elif [ "$opt" = "bluetooth_restart" ]; then
         
         
         ######################################
@@ -2582,7 +2605,13 @@ select opt in $OPTIONS; do
         
         ######################################
         
-        echo "${yellow}bluetooth status: ${red}(HOLD Ctrl+C KEYS DOWN TO EXIT)${yellow}:"
+        echo "${cyan}restarting bluetooth service, please wait..."
+        echo "${reset} "
+        sudo systemctl restart bluetooth
+
+        sleep 1
+        
+        echo "${yellow}bluetooth status:"
         echo "${reset} "
         sudo systemctl status bluetooth.service
         exit
@@ -2615,7 +2644,7 @@ select opt in $OPTIONS; do
         echo " "
         echo "Put your bluetooth receiver in pairing mode, and get ready to write down what you see as it's mac address (format: XX:XX:XX:XX:XX:XX).${reset}"
         echo " "
-        echo "${red}WHEN YOU ARE DONE: hold down the 2 keys Ctrl+C at the same time, until you exit this script.${reset}"
+        echo "${red}WHEN YOU ARE DONE: hold down the 2 keys Ctrl+C at the same time, until you exit this script, OR just wait 1 minute for the timeout.${reset}"
         
         echo "${yellow} "
         read -n1 -s -r -p $'Press Y to run the bluetooth scan (or press N to cancel)...\n' keystroke
@@ -2623,7 +2652,8 @@ select opt in $OPTIONS; do
 
             if [ "$keystroke" = 'y' ] || [ "$keystroke" = 'Y' ]; then
         
-            bluetoothctl scan on
+            bluetoothctl --timeout 60 scan on
+        
             echo " "
             
             echo " "
