@@ -1021,9 +1021,10 @@ clean_system_update () {
 # Ubuntu uses snaps for very basic libraries these days, so we need to configure for possible snap installs
 if [ "$IS_UBUNTU" != "" ]; then
 
-     if [ ! -f ~/.ubuntu_check.dat ]; then
+     if [ ! -f /home/${TERMINAL_USERNAME}/.ubuntu_check.dat ]; then
      sudo apt install snapd -y
-     echo -e "ran" > ~/.ubuntu_check.dat
+     echo -e "ran" > /home/${TERMINAL_USERNAME}/.ubuntu_check.dat
+     chown ${TERMINAL_USERNAME}:${TERMINAL_USERNAME} /home/${TERMINAL_USERNAME}/.ubuntu_check.dat
      sleep 2
      fi
           
